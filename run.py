@@ -87,12 +87,15 @@ def login():
 
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for("users"))
+
+            if user.role == "admin":
+                return redirect(url_for("users"))
+            else:
+                return redirect(url_for("courses"))
 
         return "Invalid username or password"
 
     return render_template("login.html")
-
 
 @app.route("/logout")
 def logout():
@@ -490,3 +493,6 @@ def remove_student_from_course(course_id, student_id):
     )
 
 
+
+if __name__ == "__main__":
+    app.run(debug=True)

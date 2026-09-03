@@ -490,6 +490,3 @@ def remove_student_from_course(course_id, student_id):
     )
 
 
-
-if __name__ == "__main__":
-    app.run(debug=True)

@@ -1,0 +1,84 @@
+{% extends "base.html" %} {% block title %} {{ course.name }} - Students {% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ course.name }}</h1>
+
+        <p>Manage students enrolled in this course.</p>
+    </div>
+
+    <a href="{{ url_for('course_topics', course_id=course.id) }}" class="button button-secondary"> View Course </a>
+</div>
+
+<h2>Enrolled Students</h2>
+
+{% if course.students %}
+
+<div class="student-list">
+    {% for student in course.students %}
+
+    <div class="student-row">
+        <div>
+            <div class="student-name">{{ student.username }}</div>
+
+            <div class="user-role">Student</div>
+        </div>
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                        'remove_student_from_course',
+                        course_id=course.id,
+                        student_id=student.id
+                    ) }}"
+        >
+            <button type="submit" class="button-danger">Remove</button>
+        </form>
+    </div>
+
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No students enrolled</h2>
+
+    <p>Add students to this course using the form below.</p>
+</div>
+
+{% endif %}
+
+<br /><br />
+
+<h2>Add Student</h2>
+
+<div class="form-card">
+    <form
+        method="POST"
+        action="{{ url_for(
+            'add_student_to_course',
+            course_id=course.id
+        ) }}"
+    >
+        <div class="form-group">
+            <label for="student_id"> Student </label>
+
+            <select id="student_id" name="student_id" required>
+                {% for student in students %}
+
+                <option value="{{ student.id }}">{{ student.username }}</option>
+
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">Add Student</button>
+
+            <a href="{{ url_for('courses') }}" class="button button-secondary"> Back to Courses </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block title %} Profile {% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>My Profile</h1>
+
+        <p>Account information and profile details.</p>
+    </div>
+</div>
+
+<div class="profile-card">
+    <div class="profile-avatar">{{ current_user.username[0]|upper }}</div>
+
+    <div class="profile-info">
+        <h2>{{ current_user.username }}</h2>
+
+        <p class="profile-role">{{ current_user.role }}</p>
+    </div>
+</div>
+
+<div class="profile-details">
+    <div class="profile-detail">
+        <span class="profile-label"> Username </span>
+
+        <strong> {{ current_user.username }} </strong>
+    </div>
+
+    <div class="profile-detail">
+        <span class="profile-label"> Role </span>
+
+        <strong> {{ current_user.role|capitalize }} </strong>
+    </div>
+
+    <div class="profile-detail">
+        <span class="profile-label"> User ID </span>
+
+        <strong> #{{ current_user.id }} </strong>
+    </div>
+</div>
+
+<div class="form-actions">
+    <a href="{{ url_for('courses') }}" class="button button-primary"> Go to Courses </a>
+
+    <a href="{{ url_for('logout') }}" class="button button-secondary"> Logout </a>
+</div>
+
+{% endblock %}

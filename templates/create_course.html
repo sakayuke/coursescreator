@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Create Course</title>
+    </head>
+    <body>
+        <h1>Create Course</h1>
+
+        <form method="POST">
+            <label>Course name:</label>
+            <input type="text" name="name" required />
+
+            <br /><br />
+
+            <label>Description:</label>
+            <textarea name="description"></textarea>
+
+            <br /><br />
+
+            {% if current_user.role == "admin" %}
+
+            <label>Teacher:</label>
+
+            <select name="teacher_id" required>
+                {% for teacher in teachers %}
+                <option value="{{ teacher.id }}">{{ teacher.username }}</option>
+                {% endfor %}
+            </select>
+
+            <br /><br />
+
+            {% endif %}
+
+            <button type="submit">Create Course</button>
+        </form>
+
+        <br />
+
+        <a href="/courses">Back to courses</a>
+    </body>
+</html>

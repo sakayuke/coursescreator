@@ -1,0 +1,67 @@
+{% extends "base.html" %} {% block title %} {{ topic.name }} - Materials {% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ topic.name }}</h1>
+
+        <p>
+            Materials for
+            <strong>{{ course.name }}</strong>.
+        </p>
+    </div>
+
+    {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+
+    <a href="#" class="button button-primary"> + Add Material </a>
+
+    {% endif %}
+</div>
+
+{% if topic.materials %}
+
+<div class="topic-grid">
+    {% for material in topic.materials %}
+
+    <article class="topic-card">
+        <h3>{{ material.name }}</h3>
+
+        <p>Type: {{ material.file_type or "Unknown" }}</p>
+
+        <div class="topic-actions">
+            <a href="#" class="button button-primary"> Open </a>
+
+            {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id ==
+            current_user.id) %}
+
+            <button type="button" class="button-danger">Delete</button>
+
+            {% endif %}
+        </div>
+    </article>
+
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No materials yet</h2>
+
+    <p>There are currently no materials in this topic.</p>
+</div>
+
+{% endif %}
+
+<br />
+
+<a
+    href="{{ url_for(
+        'course_topics',
+        course_id=course.id
+    ) }}"
+    class="button button-secondary"
+>
+    ← Back to Topics
+</a>
+
+{% endblock %}

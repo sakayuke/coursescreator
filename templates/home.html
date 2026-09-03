@@ -1,0 +1,86 @@
+{% extends "base.html" %} {% block title %} Home {% endblock %} {% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="hero-label"> LEARNING PLATFORM </span>
+
+        <h1>
+            Learn. Practice.
+            <span>Grow.</span>
+        </h1>
+
+        <p>Learn new skills through structured courses, useful materials and practical assignments.</p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('courses') }}" class="button button-primary"> Explore Courses </a>
+
+            {% if not current_user.is_authenticated %}
+
+            <a href="{{ url_for('register') }}" class="button button-secondary"> Create Account </a>
+
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <div class="hero-card-icon">C</div>
+
+        <div>
+            <strong> CoursePlatform </strong>
+
+            <p>Everything you need to keep learning.</p>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="section-heading">
+        <h2>Everything you need to learn</h2>
+
+        <p>A simple platform for managing your learning journey.</p>
+    </div>
+
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div class="feature-icon">📚</div>
+
+            <h3>Structured Courses</h3>
+
+            <p>Learn through organized courses divided into clear topics.</p>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-icon">📄</div>
+
+            <h3>Learning Materials</h3>
+
+            <p>Access documents and other materials provided by your teachers.</p>
+        </article>
+
+        <article class="feature-card">
+            <div class="feature-icon">📝</div>
+
+            <h3>Practical Assignments</h3>
+
+            <p>Complete assignments and submit your work directly through the platform.</p>
+        </article>
+    </div>
+</section>
+
+<section class="cta">
+    <h2>Ready to start learning?</h2>
+
+    <p>Create your account and explore available courses.</p>
+
+    {% if current_user.is_authenticated %}
+
+    <a href="{{ url_for('courses') }}" class="button button-primary"> Browse Courses </a>
+
+    {% else %}
+
+    <a href="{{ url_for('register') }}" class="button button-primary"> Get Started </a>
+
+    {% endif %}
+</section>
+
+{% endblock %}

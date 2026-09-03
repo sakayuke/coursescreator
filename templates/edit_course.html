@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Edit Course</title>
+    </head>
+
+    <body>
+        <h1>Edit Course</h1>
+
+        <form method="POST">
+            <label>Course name:</label>
+            <input type="text" name="name" value="{{ course.name }}" required />
+
+            <br /><br />
+
+            <label>Description:</label>
+            <textarea name="description">{{ course.description }}</textarea>
+
+            <br /><br />
+
+            {% if current_user.role == "admin" %}
+
+            <label>Teacher:</label>
+
+            <select name="teacher_id" required>
+                {% for teacher in teachers %}
+
+                <option value="{{ teacher.id }}" {% if teacher.id == course.teacher_id %}selected{% endif %}>
+                    {{ teacher.username }}
+                </option>
+
+                {% endfor %}
+            </select>
+
+            <br /><br />
+
+            {% endif %}
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <br />
+
+        <a href="/courses">Back to courses</a>
+    </body>
+</html>

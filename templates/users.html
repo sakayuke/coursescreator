@@ -1,0 +1,63 @@
+{% extends "base.html" %} {% block title %} Users {% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Users</h1>
+
+        <p>Manage users and their roles.</p>
+    </div>
+</div>
+
+{% if users %}
+
+<div class="users-card">
+    <div class="users-header">
+        <div>User</div>
+
+        <div>Role</div>
+
+        <div>Actions</div>
+    </div>
+
+    {% for user in users %}
+
+    <div class="user-row">
+        <div class="user-main">
+            <div class="user-avatar user-avatar-light">{{ user.username[0]|upper }}</div>
+
+            <div>
+                <div class="user-name">{{ user.username }}</div>
+
+                <div class="user-id">User #{{ user.id }}</div>
+            </div>
+        </div>
+
+        <div>
+            <span class="role-badge role-{{ user.role }}"> {{ user.role|capitalize }} </span>
+        </div>
+
+        <div class="user-actions">
+            <a
+                href="{{ url_for(
+        'user_profile',
+        user_id=user.id
+    ) }}"
+                class="button button-secondary"
+            >
+                Profile
+            </a>
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No users found</h2>
+
+    <p>There are currently no registered users.</p>
+</div>
+
+{% endif %} {% endblock %}

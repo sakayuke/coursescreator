@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block title %} Create Topic {% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Create Topic</h1>
+
+        <p>
+            Add a new topic to
+            <strong>{{ course.name }}</strong>.
+        </p>
+    </div>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        <div class="form-group">
+            <label for="name"> Topic name </label>
+
+            <input id="name" type="text" name="name" placeholder="e.g. Python Variables" required />
+        </div>
+
+        <div class="form-group">
+            <label for="description"> Description </label>
+
+            <textarea id="description" name="description" placeholder="Describe what students will learn..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="button button-primary">Create Topic</button>
+
+            <a
+                href="{{ url_for(
+                    'course_topics',
+                    course_id=course.id
+                ) }}"
+                class="button button-secondary"
+            >
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

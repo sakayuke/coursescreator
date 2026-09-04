@@ -2,7 +2,6 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <title>{% block title %}Course Platform{% endblock %}</title>
@@ -22,10 +21,10 @@
                 {% if current_user.is_authenticated %}
 
                 <a href="{{ url_for('profile') }}" class="user-profile">
-                    <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
+                    <div class="user-avatar">{{ current_user.email[0]|upper }}</div>
 
                     <div class="user-info">
-                        <span class="username"> {{ current_user.username }} </span>
+                        <span class="username"> {{ current_user.email }} </span>
 
                         <span class="user-role"> {{ current_user.role }} </span>
                     </div>

@@ -1,13 +1,48 @@
-from app.decorators import role_required
+from app.decorators import role_required, is_owner
+
 from flask import render_template, request, redirect, url_for, abort, flash
+
 from flask_login import login_user, logout_user, current_user, login_required
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app import create_app
+
 from app.extensions import db
+
 from app.models import User, Course, Topic, Material
 
 app = create_app()
+
+@app.cli.command("create-admin")
+def create_admin():
+    """Create an admin user."""
+
+    email = input("Admin email: ").strip()
+    password = input("Admin password: ")
+
+    if not email or not password:
+        print("Email and password are required.")
+        return
+
+    existing_user = User.query.filter_by(email=email).first()
+
+    if existing_user:
+        print("User with this email already exists.")
+        return
+
+    password_hash = generate_password_hash(password)
+
+    user = User(
+        email=email,
+        password_hash=password_hash,
+        role="admin"
+    )
+
+    db.session.add(user)
+    db.session.commit()
+
+    print(f"Admin {email} created successfully.")
 
 
 @app.route("/")
@@ -43,7 +78,7 @@ def user_profile(user_id):
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
         password_confirm = request.form["password_confirm"]
 
@@ -52,20 +87,21 @@ def register():
             return render_template("register.html")
 
         existing_user = User.query.filter_by(
-            username=username
-        ).first()
+    email=email
+).first()
 
         if existing_user:
-            flash("This username is already taken.", "error")
+            flash("This email is already registered.", "error")
             return render_template("register.html")
 
         password_hash = generate_password_hash(password)
 
         user = User(
-            username=username,
-            password_hash=password_hash,
-            role="student"
-        )
+    email=email,
+    password_hash=password_hash,
+    role="student"
+)
+        
 
         db.session.add(user)
         db.session.commit()
@@ -80,10 +116,10 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
 
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(email=email).first()
 
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
@@ -93,7 +129,7 @@ def login():
             else:
                 return redirect(url_for("courses"))
 
-        return "Invalid username or password"
+        return "Invalid email or password"
 
     return render_template("login.html")
 
@@ -180,8 +216,8 @@ def edit_course(course_id):
     if current_user.role == "admin":
         pass
     elif current_user.role == "teacher":
-        if course.teacher_id != current_user.id:
-            abort(403)
+        if not is_owner(course):
+         abort(403)
     else:
         abort(403)
 
@@ -215,8 +251,8 @@ def delete_course(course_id):
     if current_user.role == "admin":
         pass
     elif current_user.role == "teacher":
-        if course.teacher_id != current_user.id:
-            abort(403)
+        if not is_owner(course):
+         abort(403)
     else:
         abort(403)
 

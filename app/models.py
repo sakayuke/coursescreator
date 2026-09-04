@@ -1,18 +1,16 @@
-from .extensions import db
 from flask_login import UserMixin
+
+from .extensions import db
 
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     __table_args__ = {"schema": "dbo"}
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
+    id = db.Column(db.Integer, primary_key=True)
 
-    username = db.Column(
-        db.String(100),
+    email = db.Column(
+        db.String(255),
         unique=True,
         nullable=False
     )
@@ -31,21 +29,18 @@ class User(UserMixin, db.Model):
 course_students = db.Table(
     "course_students",
     db.metadata,
-
     db.Column(
         "course_id",
         db.Integer,
         db.ForeignKey("dbo.courses.id"),
         primary_key=True
     ),
-
     db.Column(
         "student_id",
         db.Integer,
         db.ForeignKey("dbo.users.id"),
         primary_key=True
     ),
-
     schema="dbo"
 )
 
@@ -54,10 +49,7 @@ class Course(db.Model):
     __tablename__ = "courses"
     __table_args__ = {"schema": "dbo"}
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
+    id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(
         db.String(150),
@@ -138,7 +130,7 @@ class Material(db.Model):
     )
 
     name = db.Column(
-        db.String(200),
+        db.String(150),
         nullable=False
     )
 
@@ -148,7 +140,7 @@ class Material(db.Model):
     )
 
     file_type = db.Column(
-        db.String(50)
+        db.String(100)
     )
 
     topic = db.relationship(

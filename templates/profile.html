@@ -9,10 +9,10 @@
 </div>
 
 <div class="profile-card">
-    <div class="profile-avatar">{{ current_user.username[0]|upper }}</div>
+    <div class="profile-avatar">{{ current_user.email[0]|upper }}</div>
 
     <div class="profile-info">
-        <h2>{{ current_user.username }}</h2>
+        <h2>{{ current_user.email }}</h2>
 
         <p class="profile-role">{{ current_user.role }}</p>
     </div>
@@ -22,7 +22,7 @@
     <div class="profile-detail">
         <span class="profile-label"> Username </span>
 
-        <strong> {{ current_user.username }} </strong>
+        <strong> {{ current_user.email }} </strong>
     </div>
 
     <div class="profile-detail">

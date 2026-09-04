@@ -1,33 +1,21 @@
-{% extends "base.html" %} {% block title %} Log in {% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content %}
 
-<div class="auth-page">
-    <div class="auth-card">
-        <h1>Log in</h1>
+<h1>Log in</h1>
 
-        <p class="auth-description">Log in to continue learning.</p>
+<form method="POST">
+    <label for="email">Email</label>
 
-        <form method="POST">
-            <div class="form-group">
-                <label for="username"> Username </label>
+    <input id="email" type="email" name="email" placeholder="Enter your email" required />
 
-                <input id="username" type="text" name="username" placeholder="Enter your username" required />
-            </div>
+    <br /><br />
 
-            <div class="form-group">
-                <label for="password"> Password </label>
+    <label for="password">Password</label>
 
-                <input id="password" type="password" name="password" placeholder="Enter your password" required />
-            </div>
+    <input id="password" type="password" name="password" placeholder="Enter your password" required />
 
-            <button type="submit" class="button button-primary auth-button">Log in</button>
-        </form>
+    <br /><br />
 
-        <p class="auth-footer">
-            Don't have an account?
-
-            <a href="{{ url_for('register') }}"> Sign up </a>
-        </p>
-    </div>
-</div>
+    <button type="submit">Log in</button>
+</form>
 
 {% endblock %}

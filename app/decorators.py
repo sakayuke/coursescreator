@@ -17,3 +17,10 @@ def role_required(*roles):
         return wrapped_view
 
     return decorator
+
+
+def is_owner(obj, user=None):
+    if user is None:
+        user = current_user
+
+    return obj.teacher_id == user.id

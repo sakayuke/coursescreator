@@ -1,50 +1,27 @@
-{% extends "base.html" %} {% block title %} Sign up {% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Register{% endblock %} {% block content %}
 
-<div class="auth-page">
-    <div class="auth-card">
-        <h1>Sign up</h1>
+<h1>Create Account</h1>
 
-        <p class="auth-description">Create an account and start learning.</p>
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in
-        messages %}
+<form method="POST">
+    <label for="email">Email</label>
 
-        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+    <input id="email" type="email" name="email" placeholder="Enter your email" required />
 
-        {% endfor %} {% endif %} {% endwith %}
-        <form method="POST">
-            <div class="form-group">
-                <label for="username"> Username </label>
+    <br /><br />
 
-                <input id="username" type="text" name="username" placeholder="Choose a username" required />
-            </div>
+    <label for="password">Password</label>
 
-            <div class="form-group">
-                <label for="password"> Password </label>
+    <input id="password" type="password" name="password" placeholder="Choose a password" required />
 
-                <input id="password" type="password" name="password" placeholder="Choose a password" required />
-            </div>
+    <br /><br />
 
-            <div class="form-group">
-                <label for="password_confirm"> Confirm Password </label>
+    <label for="password_confirm">Confirm password</label>
 
-                <input
-                    id="password_confirm"
-                    type="password"
-                    name="password_confirm"
-                    placeholder="Repeat your password"
-                    required
-                />
-            </div>
+    <input id="password_confirm" type="password" name="password_confirm" placeholder="Repeat your password" required />
 
-            <button type="submit" class="button button-primary auth-button">Create Account</button>
-        </form>
+    <br /><br />
 
-        <p class="auth-footer">
-            Already have an account?
-
-            <a href="{{ url_for('login') }}"> Log in </a>
-        </p>
-    </div>
-</div>
+    <button type="submit">Sign up</button>
+</form>
 
 {% endblock %}

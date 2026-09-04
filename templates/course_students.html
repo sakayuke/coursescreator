@@ -19,7 +19,7 @@
 
     <div class="student-row">
         <div>
-            <div class="student-name">{{ student.username }}</div>
+            <div class="student-name">{{ student.email }}</div>
 
             <div class="user-role">Student</div>
         </div>
@@ -67,7 +67,7 @@
             <select id="student_id" name="student_id" required>
                 {% for student in students %}
 
-                <option value="{{ student.id }}">{{ student.username }}</option>
+                <option value="{{ student.id }}">{{ student.email }}</option>
 
                 {% endfor %}
             </select>

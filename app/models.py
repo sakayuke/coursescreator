@@ -157,3 +157,42 @@ class Material(db.Model):
         "Topic",
         backref="materials"
     )
+
+class TeacherRequest(db.Model):
+    __tablename__ = "teacher_requests"
+    __table_args__ = {"schema": "dbo"}
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.users.id"),
+        nullable=False
+    )
+
+    experience = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    reason = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    status = db.Column(
+        db.String(20),
+        nullable=False,
+        default="pending"
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        server_default=db.func.getdate()
+    )
+
+    user = db.relationship(
+        "User",
+        backref=db.backref("teacher_requests", lazy=True)
+    )

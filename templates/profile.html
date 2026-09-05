@@ -41,6 +41,11 @@
     <a href="{{ url_for('edit_profile') }}" class="button button-primary"> Edit Profile </a>
 
     <a href="{{ url_for('courses') }}" class="button button-primary"> Go to Courses </a>
+    {% if current_user.role == "student" %}
+
+    <a href="{{ url_for('teacher_request') }}" class="button button-primary"> Become a Teacher </a>
+
+    {% endif %}
 
     <a href="{{ url_for('logout') }}" class="button button-secondary"> Logout </a>
 </div>

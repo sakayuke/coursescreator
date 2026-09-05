@@ -26,4 +26,7 @@ def create_app():
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    from .submission_routes import register_submission_routes
+    register_submission_routes(app)
+
     return app

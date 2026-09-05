@@ -196,3 +196,94 @@ class TeacherRequest(db.Model):
         "User",
         backref=db.backref("teacher_requests", lazy=True)
     )
+
+class Assignment(db.Model):
+    __tablename__ = "assignments"
+    __table_args__ = {"schema": "dbo"}
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    topic_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.topics.id"),
+        nullable=False
+    )
+
+    title = db.Column(
+        db.String(150),
+        nullable=False
+    )
+
+    description = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    topic = db.relationship(
+        "Topic",
+        backref=db.backref(
+            "assignments",
+            lazy=True
+        )
+    )
+
+class Submission(db.Model):
+    __tablename__ = "submissions"
+    __table_args__ = {"schema": "dbo"}
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    assignment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.assignments.id"),
+        nullable=False
+    )
+
+    student_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.users.id"),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    grade = db.Column(
+        db.Integer,
+        nullable=True
+    )
+
+    feedback = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    submitted_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        server_default=db.func.getdate()
+    )
+
+    assignment = db.relationship(
+        "Assignment",
+        backref=db.backref(
+            "submissions",
+            lazy=True
+        )
+    )
+
+    student = db.relationship(
+        "User",
+        backref=db.backref(
+            "submissions",
+            lazy=True
+        )
+    )

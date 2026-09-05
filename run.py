@@ -10,11 +10,20 @@ from app import create_app
 
 from app.extensions import db
 
-from app.models import User, Course, Topic, Material, TeacherRequest
+from app.models import (
+    User,
+    Course,
+    Topic,
+    Material,
+    TeacherRequest,
+    Submission,
+)
 
 import re
 
+
 def validate_password(password):
+
     if len(password) < 8:
         return "Password must be at least 8 characters long."
 
@@ -27,15 +36,21 @@ def validate_password(password):
     if not re.search(r"\d", password):
         return "Password must contain at least one digit."
 
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-\\[\]/+=;'`~]", password):
+    if not re.search(
+        r"""[!@#$%^&*(),.?":{}|<>_\-\\[\]/+=;'"`~]""",
+        password
+    ):
         return "Password must contain at least one special character."
 
     return None
 
+
 app = create_app()
+
 
 @app.cli.command("create-admin")
 def create_admin():
+
     """Create an admin user."""
 
     email = input("Admin email: ").strip()
@@ -54,13 +69,12 @@ def create_admin():
     password_hash = generate_password_hash(password)
 
     user = User(
-    first_name="Admin",
-    last_name="User",
-    email=email,
-    password_hash=password_hash,
-    role="superadmin"
-)
-
+        first_name="Admin",
+        last_name="User",
+        email=email,
+        password_hash=password_hash,
+        role="superadmin"
+    )
 
     db.session.add(user)
     db.session.commit()
@@ -70,18 +84,27 @@ def create_admin():
 
 @app.route("/")
 def home():
+
     return render_template("home.html")
+
 
 @app.route("/users")
 @role_required("admin", "superadmin")
 def users():
+
     users = User.query.all()
-    return render_template("users.html", users=users)
+
+    return render_template(
+        "users.html",
+        users=users
+    )
+
 
 @app.route("/users/<int:user_id>")
 @login_required
 @role_required("admin")
 def user_profile(user_id):
+
     user = db.session.get(User, user_id)
 
     if user is None:
@@ -95,31 +118,56 @@ def user_profile(user_id):
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
+
         first_name = request.form["first_name"].strip()
         last_name = request.form["last_name"].strip()
         email = request.form["email"].strip().lower()
+
         password = request.form["password"]
         password_confirm = request.form["password_confirm"]
 
         if not first_name or not last_name:
-            flash("First name and last name are required.", "error")
+
+            flash(
+                "First name and last name are required.",
+                "error"
+            )
+
             return render_template("register.html")
 
         if password != password_confirm:
-            flash("Passwords do not match.", "error")
+
+            flash(
+                "Passwords do not match.",
+                "error"
+            )
+
             return render_template("register.html")
 
         password_error = validate_password(password)
 
         if password_error:
-            flash(password_error, "error")
+
+            flash(
+                password_error,
+                "error"
+            )
+
             return render_template("register.html")
 
-        existing_user = User.query.filter_by(email=email).first()
+        existing_user = User.query.filter_by(
+            email=email
+        ).first()
 
         if existing_user:
-            flash("This email is already registered.", "error")
+
+            flash(
+                "This email is already registered.",
+                "error"
+            )
+
             return render_template("register.html")
 
         password_hash = generate_password_hash(password)
@@ -135,7 +183,11 @@ def register():
         db.session.add(user)
         db.session.commit()
 
-        flash("Account created successfully. You can now log in.", "success")
+        flash(
+            "Account created successfully. You can now log in.",
+            "success"
+        )
+
         return redirect(url_for("login"))
 
     return render_template("register.html")
@@ -143,46 +195,65 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     if request.method == "POST":
-        email = request.form["email"]
+
+        email = request.form["email"].strip().lower()
         password = request.form["password"]
 
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(
+            email=email
+        ).first()
 
-        if user and check_password_hash(user.password_hash, password):
+        if user and check_password_hash(
+            user.password_hash,
+            password
+        ):
+
             login_user(user)
 
             if user.role == "admin":
                 return redirect(url_for("users"))
-            else:
-                return redirect(url_for("courses"))
+
+            return redirect(url_for("courses"))
 
         return "Invalid email or password"
 
     return render_template("login.html")
 
+
 @app.route("/logout")
 def logout():
+
     logout_user()
+
     return redirect(url_for("login"))
 
 
 @app.route("/profile")
 @login_required
 def profile():
+
     return render_template("profile.html")
 
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 def edit_profile():
+
     if request.method == "POST":
+
         first_name = request.form["first_name"].strip()
         last_name = request.form["last_name"].strip()
         email = request.form["email"].strip().lower()
 
         if not first_name or not last_name or not email:
-            flash("All fields are required.", "error")
+
+            flash(
+                "All fields are required.",
+                "error"
+            )
+
             return render_template("edit_profile.html")
 
         existing_user = User.query.filter(
@@ -191,7 +262,12 @@ def edit_profile():
         ).first()
 
         if existing_user:
-            flash("This email is already registered.", "error")
+
+            flash(
+                "This email is already registered.",
+                "error"
+            )
+
             return render_template("edit_profile.html")
 
         current_user.first_name = first_name
@@ -200,7 +276,11 @@ def edit_profile():
 
         db.session.commit()
 
-        flash("Profile updated successfully.", "success")
+        flash(
+            "Profile updated successfully.",
+            "success"
+        )
+
         return redirect(url_for("profile"))
 
     return render_template("edit_profile.html")
@@ -209,9 +289,17 @@ def edit_profile():
 @app.route("/admin")
 @role_required("admin", "superadmin")
 def admin():
+
     users_count = User.query.count()
-    teachers_count = User.query.filter_by(role="teacher").count()
-    students_count = User.query.filter_by(role="student").count()
+
+    teachers_count = User.query.filter_by(
+        role="teacher"
+    ).count()
+
+    students_count = User.query.filter_by(
+        role="student"
+    ).count()
+
     courses_count = Course.query.count()
 
     return render_template(
@@ -219,19 +307,29 @@ def admin():
         users_count=users_count,
         teachers_count=teachers_count,
         students_count=students_count,
-        courses_count=courses_count,
+        courses_count=courses_count
     )
+
 
 @app.route("/teacher-request", methods=["GET", "POST"])
 @role_required("student")
 def teacher_request():
+
     if request.method == "POST":
+
         experience = request.form["experience"].strip()
         reason = request.form["reason"].strip()
 
         if not experience or not reason:
-            flash("Experience and reason are required.", "error")
-            return render_template("teacher_request.html")
+
+            flash(
+                "Experience and reason are required.",
+                "error"
+            )
+
+            return render_template(
+                "teacher_request.html"
+            )
 
         pending_request = TeacherRequest.query.filter_by(
             user_id=current_user.id,
@@ -239,8 +337,15 @@ def teacher_request():
         ).first()
 
         if pending_request:
-            flash("You already have a pending teacher request.", "error")
-            return redirect(url_for("teacher_request"))
+
+            flash(
+                "You already have a pending teacher request.",
+                "error"
+            )
+
+            return redirect(
+                url_for("teacher_request")
+            )
 
         teacher_request = TeacherRequest(
             user_id=current_user.id,
@@ -252,8 +357,14 @@ def teacher_request():
         db.session.add(teacher_request)
         db.session.commit()
 
-        flash("Teacher request submitted successfully.", "success")
-        return redirect(url_for("teacher_request"))
+        flash(
+            "Teacher request submitted successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for("teacher_request")
+        )
 
     teacher_request = TeacherRequest.query.filter_by(
         user_id=current_user.id
@@ -266,9 +377,11 @@ def teacher_request():
         teacher_request=teacher_request
     )
 
+
 @app.route("/admin/teacher-requests")
 @role_required("admin", "superadmin")
 def teacher_requests():
+
     requests = TeacherRequest.query.order_by(
         TeacherRequest.created_at.desc()
     ).all()
@@ -278,13 +391,18 @@ def teacher_requests():
         requests=requests
     )
 
+
 @app.route(
     "/admin/teacher-requests/<int:request_id>/<action>",
     methods=["POST"]
 )
 @role_required("admin", "superadmin")
 def review_teacher_request(request_id, action):
-    teacher_request = db.session.get(TeacherRequest, request_id)
+
+    teacher_request = db.session.get(
+        TeacherRequest,
+        request_id
+    )
 
     if teacher_request is None:
         abort(404)
@@ -293,10 +411,18 @@ def review_teacher_request(request_id, action):
         abort(400)
 
     if teacher_request.status != "pending":
-        flash("This request has already been reviewed.", "error")
-        return redirect(url_for("teacher_requests"))
+
+        flash(
+            "This request has already been reviewed.",
+            "error"
+        )
+
+        return redirect(
+            url_for("teacher_requests")
+        )
 
     if action == "approve":
+
         teacher_request.status = "approved"
         teacher_request.user.role = "teacher"
 
@@ -306,6 +432,7 @@ def review_teacher_request(request_id, action):
         )
 
     else:
+
         teacher_request.status = "rejected"
 
         flash(
@@ -315,12 +442,16 @@ def review_teacher_request(request_id, action):
 
     db.session.commit()
 
-    return redirect(url_for("teacher_requests"))
+    return redirect(
+        url_for("teacher_requests")
+    )
+
 
 @app.route("/courses")
 @login_required
 def courses():
-    if current_user.role == "admin":
+
+    if current_user.role in ("admin", "superadmin"):
 
         courses = Course.query.all()
 
@@ -339,9 +470,14 @@ def courses():
         courses=courses
     )
 
-@app.route("/admin/users/<int:user_id>/role", methods=["POST"])
+
+@app.route(
+    "/admin/users/<int:user_id>/role",
+    methods=["POST"]
+)
 @role_required("admin", "superadmin")
 def change_user_role(user_id):
+
     user = db.session.get(User, user_id)
 
     if user is None:
@@ -349,50 +485,125 @@ def change_user_role(user_id):
 
     new_role = request.form["role"]
 
-    if new_role not in ("student", "teacher", "admin", "superadmin"):
+    if new_role not in (
+        "student",
+        "teacher",
+        "admin",
+        "superadmin"
+    ):
         abort(400)
 
-
     if user.id == current_user.id:
-        flash("You cannot change your own role.", "error")
-        return redirect(url_for("users"))
 
+        flash(
+            "You cannot change your own role.",
+            "error"
+        )
+
+        return redirect(
+            url_for("users")
+        )
 
     if current_user.role == "admin":
+
         if user.role in ("admin", "superadmin"):
             abort(403)
 
         if new_role not in ("student", "teacher"):
             abort(403)
 
-
-    if current_user.role == "admin" and new_role == "superadmin":
+    if (
+        current_user.role == "admin"
+        and new_role == "superadmin"
+    ):
         abort(403)
 
-
     if current_user.role != "superadmin":
+
         if user.role in ("admin", "superadmin"):
             abort(403)
 
     user.role = new_role
+
     db.session.commit()
 
-    flash("User role updated successfully.", "success")
-    return redirect(url_for("users"))
+    flash(
+        "User role updated successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("users")
+    )
+
 
 @app.route("/courses/create", methods=["GET", "POST"])
 @login_required
 def create_course():
-    if current_user.role not in ("admin", "teacher"):
+    if current_user.role not in ("admin", "superadmin", "teacher"):
         abort(403)
 
     if request.method == "POST":
-        name = request.form["name"]
-        description = request.form["description"]
+        name = request.form["name"].strip()
+        description = request.form["description"].strip()
+
+        if not name:
+            flash("Course name is required.", "error")
+            return render_template(
+                "create_course.html",
+                teachers=User.query.filter_by(role="teacher").all()
+            )
 
         if current_user.role == "teacher":
             teacher_id = current_user.id
         else:
+            teacher_id = request.form["teacher_id"]
+
+        teacher = db.session.get(User, teacher_id)
+
+        if teacher is None or teacher.role != "teacher":
+            flash("Selected teacher is invalid.", "error")
+            return render_template(
+                "create_course.html",
+                teachers=User.query.filter_by(role="teacher").all()
+            )
+
+        course = Course(
+            name=name,
+            description=description,
+            teacher_id=teacher.id
+        )
+
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Course created successfully.", "success")
+
+        return redirect(url_for("courses"))
+
+    teachers = User.query.filter_by(role="teacher").all()
+
+    return render_template(
+        "create_course.html",
+        teachers=teachers
+    )
+@login_required
+def create_course():
+
+    if current_user.role not in ("admin", "teacher"):
+        abort(403)
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        description = request.form["description"]
+
+        if current_user.role == "teacher":
+
+            teacher_id = current_user.id
+
+        else:
+
             teacher_id = request.form["teacher_id"]
 
         course = Course(
@@ -404,43 +615,66 @@ def create_course():
         db.session.add(course)
         db.session.commit()
 
-        return redirect(url_for("courses"))
+        return redirect(
+            url_for("courses")
+        )
 
-    teachers = User.query.filter_by(role="teacher").all()
+    teachers = User.query.filter_by(
+        role="teacher"
+    ).all()
 
     return render_template(
         "create_course.html",
         teachers=teachers
     )
 
-@app.route("/courses/<int:course_id>/edit", methods=["GET", "POST"])
+
+@app.route(
+    "/courses/<int:course_id>/edit",
+    methods=["GET", "POST"]
+)
 @login_required
 def edit_course(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
+
     elif current_user.role == "teacher":
+
         if not is_owner(course):
-         abort(403)
+            abort(403)
+
     else:
+
         abort(403)
 
     if request.method == "POST":
+
         course.name = request.form["name"]
         course.description = request.form["description"]
 
-        if current_user.role == "admin":
+        if current_user.role in ("admin", "superadmin"):
+
             course.teacher_id = request.form["teacher_id"]
 
         db.session.commit()
 
-        return redirect(url_for("courses"))
+        return redirect(
+            url_for("courses")
+        )
 
-    teachers = User.query.filter_by(role="teacher").all()
+    teachers = User.query.filter_by(
+        role="teacher"
+    ).all()
 
     return render_template(
         "edit_course.html",
@@ -448,47 +682,73 @@ def edit_course(course_id):
         teachers=teachers
     )
 
-@app.route("/courses/<int:course_id>/delete", methods=["POST"])
+
+@app.route(
+    "/courses/<int:course_id>/delete",
+    methods=["POST"]
+)
 @login_required
 def delete_course(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
+
     elif current_user.role == "teacher":
+
         if not is_owner(course):
-         abort(403)
+            abort(403)
+
     else:
+
         abort(403)
 
     db.session.delete(course)
     db.session.commit()
 
-    return redirect(url_for("courses"))
+    return redirect(
+        url_for("courses")
+    )
 
-@app.route("/courses/<int:course_id>/topics")
+
+@app.route(
+    "/courses/<int:course_id>/topics"
+)
 @login_required
 def course_topics(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
 
     elif current_user.role == "teacher":
+
         if course.teacher_id != current_user.id:
             abort(403)
 
     elif current_user.role == "student":
+
         if current_user not in course.students:
             abort(403)
 
     else:
+
         abort(403)
 
     topics = Topic.query.filter_by(
@@ -501,28 +761,37 @@ def course_topics(course_id):
         topics=topics
     )
 
-@app.route("/courses/<int:course_id>/topics/create", methods=["GET", "POST"])
+
+@app.route(
+    "/courses/<int:course_id>/topics/create",
+    methods=["GET", "POST"]
+)
 @login_required
 def create_topic(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
+    if current_user.role in ("admin", "superadmin"):
 
-    if current_user.role == "admin":
         pass
 
-
     elif current_user.role == "teacher":
+
         if course.teacher_id != current_user.id:
             abort(403)
 
-
     else:
+
         abort(403)
 
     if request.method == "POST":
+
         name = request.form["name"]
         description = request.form["description"]
 
@@ -536,7 +805,10 @@ def create_topic(course_id):
         db.session.commit()
 
         return redirect(
-            url_for("course_topics", course_id=course.id)
+            url_for(
+                "course_topics",
+                course_id=course.id
+            )
         )
 
     return render_template(
@@ -544,13 +816,18 @@ def create_topic(course_id):
         course=course
     )
 
+
 @app.route(
     "/courses/<int:course_id>/topics/<int:topic_id>/edit",
     methods=["GET", "POST"]
 )
 @login_required
 def edit_topic(course_id, topic_id):
-    topic = db.session.get(Topic, topic_id)
+
+    topic = db.session.get(
+        Topic,
+        topic_id
+    )
 
     if topic is None:
         abort(404)
@@ -558,19 +835,26 @@ def edit_topic(course_id, topic_id):
     if topic.course_id != course_id:
         abort(404)
 
-    course = db.session.get(Course, course_id)
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
 
     elif current_user.role == "teacher":
+
         if course.teacher_id != current_user.id:
             abort(403)
 
     else:
+
         abort(403)
 
     if request.method == "POST":
+
         topic.name = request.form["name"]
         topic.description = request.form["description"]
 
@@ -589,13 +873,18 @@ def edit_topic(course_id, topic_id):
         topic=topic
     )
 
+
 @app.route(
     "/courses/<int:course_id>/topics/<int:topic_id>/delete",
     methods=["POST"]
 )
 @login_required
 def delete_topic(course_id, topic_id):
-    topic = db.session.get(Topic, topic_id)
+
+    topic = db.session.get(
+        Topic,
+        topic_id
+    )
 
     if topic is None:
         abort(404)
@@ -603,16 +892,22 @@ def delete_topic(course_id, topic_id):
     if topic.course_id != course_id:
         abort(404)
 
-    course = db.session.get(Course, course_id)
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
 
     elif current_user.role == "teacher":
+
         if course.teacher_id != current_user.id:
             abort(403)
 
     else:
+
         abort(403)
 
     db.session.delete(topic)
@@ -625,13 +920,17 @@ def delete_topic(course_id, topic_id):
         )
     )
 
+
 @app.route(
     "/courses/<int:course_id>/topics/<int:topic_id>/materials"
 )
 @login_required
 def topic_materials(course_id, topic_id):
 
-    topic = db.session.get(Topic, topic_id)
+    topic = db.session.get(
+        Topic,
+        topic_id
+    )
 
     if topic is None:
         abort(404)
@@ -639,20 +938,27 @@ def topic_materials(course_id, topic_id):
     if topic.course_id != course_id:
         abort(404)
 
-    course = db.session.get(Course, course_id)
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
-    if current_user.role == "admin":
+    if current_user.role in ("admin", "superadmin"):
+
         pass
 
     elif current_user.role == "teacher":
+
         if course.teacher_id != current_user.id:
             abort(403)
 
     elif current_user.role == "student":
+
         if current_user not in course.students:
             abort(403)
 
     else:
+
         abort(403)
 
     return render_template(
@@ -661,16 +967,181 @@ def topic_materials(course_id, topic_id):
         topic=topic
     )
 
-@app.route("/courses/<int:course_id>/students")
+
+@app.route(
+    "/courses/<int:course_id>/topics/<int:topic_id>/materials/create",
+    methods=["GET", "POST"]
+)
 @login_required
-@role_required("admin")
+def create_material(course_id, topic_id):
+
+    topic = db.session.get(
+        Topic,
+        topic_id
+    )
+
+    if topic is None:
+        abort(404)
+
+    if topic.course_id != course_id:
+        abort(404)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
+
+    if current_user.role in ("admin", "superadmin"):
+
+        pass
+
+    elif current_user.role == "teacher":
+
+        if course.teacher_id != current_user.id:
+            abort(403)
+
+    else:
+
+        abort(403)
+
+    if request.method == "POST":
+
+        name = request.form["name"].strip()
+        file_path = request.form["file_path"].strip()
+        file_type = request.form.get(
+            "file_type",
+            ""
+        ).strip()
+
+        if not name or not file_path:
+
+            flash(
+                "Name and file path are required.",
+                "error"
+            )
+
+            return render_template(
+                "create_material.html",
+                course=course,
+                topic=topic
+            )
+
+        material = Material(
+            topic_id=topic.id,
+            name=name,
+            file_path=file_path,
+            file_type=file_type or None
+        )
+
+        db.session.add(material)
+        db.session.commit()
+
+        flash(
+            "Material added successfully.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "topic_materials",
+                course_id=course.id,
+                topic_id=topic.id
+            )
+        )
+
+    return render_template(
+        "create_material.html",
+        course=course,
+        topic=topic
+    )
+
+
+@app.route(
+    "/courses/<int:course_id>/topics/<int:topic_id>/materials/<int:material_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_material(
+    course_id,
+    topic_id,
+    material_id
+):
+
+    material = db.session.get(
+        Material,
+        material_id
+    )
+
+    if material is None:
+        abort(404)
+
+    if material.topic_id != topic_id:
+        abort(404)
+
+    topic = db.session.get(
+        Topic,
+        topic_id
+    )
+
+    if topic is None:
+        abort(404)
+
+    if topic.course_id != course_id:
+        abort(404)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
+
+    if current_user.role in ("admin", "superadmin"):
+
+        pass
+
+    elif current_user.role == "teacher":
+
+        if course.teacher_id != current_user.id:
+            abort(403)
+
+    else:
+
+        abort(403)
+
+    db.session.delete(material)
+    db.session.commit()
+
+    flash(
+        "Material deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "topic_materials",
+            course_id=course.id,
+            topic_id=topic.id
+        )
+    )
+
+
+@app.route(
+    "/courses/<int:course_id>/students"
+)
+@login_required
+@role_required("admin", "superadmin")
 def course_students(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
-    students = User.query.filter_by(role="student").all()
+    students = User.query.filter_by(
+        role="student"
+    ).all()
 
     return render_template(
         "course_students.html",
@@ -678,26 +1149,35 @@ def course_students(course_id):
         students=students
     )
 
+
 @app.route(
     "/courses/<int:course_id>/students/add",
     methods=["POST"]
 )
 @login_required
-@role_required("admin")
+@role_required("admin", "superadmin")
 def add_student_to_course(course_id):
-    course = db.session.get(Course, course_id)
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
     student_id = request.form["student_id"]
 
-    student = db.session.get(User, student_id)
+    student = db.session.get(
+        User,
+        student_id
+    )
 
     if student is None or student.role != "student":
         abort(400)
 
     if student not in course.students:
+
         course.students.append(student)
         db.session.commit()
 
@@ -708,24 +1188,36 @@ def add_student_to_course(course_id):
         )
     )
 
+
 @app.route(
     "/courses/<int:course_id>/students/<int:student_id>/remove",
     methods=["POST"]
 )
 @login_required
-@role_required("admin")
-def remove_student_from_course(course_id, student_id):
-    course = db.session.get(Course, course_id)
+@role_required("admin", "superadmin")
+def remove_student_from_course(
+    course_id,
+    student_id
+):
+
+    course = db.session.get(
+        Course,
+        course_id
+    )
 
     if course is None:
         abort(404)
 
-    student = db.session.get(User, student_id)
+    student = db.session.get(
+        User,
+        student_id
+    )
 
     if student is None or student.role != "student":
         abort(400)
 
     if student in course.students:
+
         course.students.remove(student)
         db.session.commit()
 
@@ -737,6 +1229,7 @@ def remove_student_from_course(course_id, student_id):
     )
 
 
-
 if __name__ == "__main__":
+
     app.run(debug=True)
+

@@ -1,0 +1,43 @@
+```html {% extends "base.html" %} {% block title %} Add Material {% endblock %} {% block content %}
+
+<h1>Add Material</h1>
+
+<p>Course: <strong>{{ course.name }}</strong></p>
+
+<p>Topic: <strong>{{ topic.name }}</strong></p>
+
+<form method="POST">
+    <label for="name">Material name:</label>
+
+    <input type="text" id="name" name="name" required />
+
+    <br /><br />
+
+    <label for="file_path">File path or URL:</label>
+
+    <input type="text" id="file_path" name="file_path" placeholder="https://example.com/file.pdf" required />
+
+    <br /><br />
+
+    <label for="file_type">File type:</label>
+
+    <input type="text" id="file_type" name="file_type" placeholder="PDF, DOCX, XLSX, MP4..." />
+
+    <br /><br />
+
+    <button type="submit">Add Material</button>
+</form>
+
+<br />
+
+<a
+    href="{{ url_for(
+        'topic_materials',
+        course_id=course.id,
+        topic_id=topic.id
+    ) }}"
+>
+    ← Back to Materials
+</a>
+
+{% endblock %} ```

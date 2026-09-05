@@ -14,20 +14,21 @@
 
     <br /><br />
 
-    {% if current_user.role == "admin" %}
+    {% if current_user.role in ("admin", "superadmin") %}
 
-    <label>Teacher:</label>
+    <label for="teacher_id">Teacher:</label>
 
-    <select name="teacher_id" required>
+    <select id="teacher_id" name="teacher_id" required>
         {% for teacher in teachers %}
+
         <option value="{{ teacher.id }}">{{ teacher.email }}</option>
+
         {% endfor %}
     </select>
 
     <br /><br />
 
     {% endif %}
-
     <button type="submit">Create Course</button>
     ```
 </form>

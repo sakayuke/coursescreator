@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %} {{ course.name }} - Topics {% endblock %} {% block content %}
+```html {% extends "base.html" %} {% block title %} {{ course.name }} - Topics {% endblock %} {% block content %}
 
 <div class="page-header">
     <div>
@@ -7,7 +7,8 @@
         <p>{{ course.description }}</p>
     </div>
 
-    {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
+    current_user.id) %}
 
     <a
         href="{{ url_for(
@@ -35,24 +36,26 @@
         <p>{% if topic.description %} {{ topic.description }} {% else %} No description available. {% endif %}</p>
 
         <div class="topic-actions">
-            {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id ==
-            current_user.id) %}
+            {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id
+            == current_user.id) %}
+
             <a
                 href="{{ url_for(
-        'topic_materials',
-        course_id=course.id,
-        topic_id=topic.id
-    ) }}"
+                        'topic_materials',
+                        course_id=course.id,
+                        topic_id=topic.id
+                    ) }}"
                 class="button button-primary"
             >
                 Materials
             </a>
+
             <a
                 href="{{ url_for(
-                                'edit_topic',
-                                course_id=course.id,
-                                topic_id=topic.id
-                            ) }}"
+                        'edit_topic',
+                        course_id=course.id,
+                        topic_id=topic.id
+                    ) }}"
                 class="button button-secondary"
             >
                 Edit
@@ -61,13 +64,28 @@
             <form
                 method="POST"
                 action="{{ url_for(
-                                'delete_topic',
-                                course_id=course.id,
-                                topic_id=topic.id
-                            ) }}"
+                        'delete_topic',
+                        course_id=course.id,
+                        topic_id=topic.id
+                    ) }}"
             >
-                <button type="submit" class="button-danger">Delete</button>
+                <button type="submit" class="button-danger" onclick="return confirm('Delete this topic?');">
+                    Delete
+                </button>
             </form>
+
+            {% else %}
+
+            <a
+                href="{{ url_for(
+                        'topic_materials',
+                        course_id=course.id,
+                        topic_id=topic.id
+                    ) }}"
+                class="button button-primary"
+            >
+                Materials
+            </a>
 
             {% endif %}
         </div>
@@ -83,15 +101,16 @@
 
     <p>This course does not have any topics yet.</p>
 
-    {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
+    current_user.id) %}
 
     <br />
 
     <a
         href="{{ url_for(
-                    'create_topic',
-                    course_id=course.id
-                ) }}"
+                'create_topic',
+                course_id=course.id
+            ) }}"
         class="button button-primary"
     >
         Create the first topic
@@ -106,4 +125,4 @@
 
 <a href="{{ url_for('courses') }}" class="button button-secondary"> ← Back to Courses </a>
 
-{% endblock %}
+{% endblock %} ```

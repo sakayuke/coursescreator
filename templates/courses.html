@@ -7,7 +7,7 @@
         <p>Explore your courses and learning materials.</p>
     </div>
 
-    {% if current_user.role == "admin" or current_user.role == "teacher" %}
+    {% if current_user.role in ("admin", "superadmin", "teacher") %}
 
     <a href="{{ url_for('create_course') }}" class="button button-primary"> + Create Course </a>
 
@@ -45,7 +45,7 @@
                     View Course
                 </a>
 
-                {% if current_user.role == "admin" %}
+                {% if current_user.role in ("admin", "superadmin") %}
 
                 <a
                     href="{{ url_for(

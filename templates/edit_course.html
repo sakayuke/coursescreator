@@ -1,46 +1,41 @@
-<!doctype html>
-<html>
-    <head>
-        <title>Edit Course</title>
-    </head>
+{% extends "base.html" %} {% block title %}Edit Course{% endblock %} {% block content %}
 
-    <body>
-        <h1>Edit Course</h1>
+<h1>Edit Course</h1>
 
-        <form method="POST">
-            <label>Course name:</label>
-            <input type="text" name="name" value="{{ course.name }}" required />
+<form method="POST">
+    <label>Course name:</label>
+    <input type="text" name="name" value="{{ course.name }}" required />
 
-            <br /><br />
+    <br /><br />
 
-            <label>Description:</label>
-            <textarea name="description">{{ course.description }}</textarea>
+    <label>Description:</label>
+    <textarea name="description">{{ course.description }}</textarea>
 
-            <br /><br />
+    <br /><br />
 
-            {% if current_user.role == "admin" %}
+    {% if current_user.role == "admin" %}
 
-            <label>Teacher:</label>
+    <label>Teacher:</label>
 
-            <select name="teacher_id" required>
-                {% for teacher in teachers %}
+    <select name="teacher_id" required>
+        {% for teacher in teachers %}
 
-                <option value="{{ teacher.id }}" {% if teacher.id="" ="course.teacher_id" %}selected{% endif %}>
-                    {{ teacher.email }}
-                </option>
+        <option value="{{ teacher.id }}" {% if teacher.id == course.teacher_id %}selected{% endif %}>
+            {{ teacher.email }}
+        </option>
 
-                {% endfor %}
-            </select>
+        {% endfor %}
+    </select>
 
-            <br /><br />
+    <br /><br />
 
-            {% endif %}
+    {% endif %}
 
-            <button type="submit">Save Changes</button>
-        </form>
+    <button type="submit">Save Changes</button>
+</form>
 
-        <br />
+<br />
 
-        <a href="/courses">Back to courses</a>
-    </body>
-</html>
+<a href="{{ url_for('courses') }}">Back to courses</a>
+
+{% endblock %}

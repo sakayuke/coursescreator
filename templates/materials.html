@@ -1,21 +1,37 @@
-{% extends "base.html" %} {% block title %} {{ topic.name }} - Materials {% endblock %} {% block content %}
+```html {% extends "base.html" %} {% block title %} {{ topic.name }} - Materials {% endblock %} {% block content %}
 
 <div class="page-header">
     <div>
         <h1>{{ topic.name }}</h1>
 
+        {% if topic.description %}
+        <p>{{ topic.description }}</p>
+        {% endif %}
+
         <p>
-            Materials for
-            <strong>{{ course.name }}</strong>.
+            Course:
+            <strong>{{ course.name }}</strong>
         </p>
     </div>
 
-    {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
+    current_user.id) %}
 
-    <a href="#" class="button button-primary"> + Add Material </a>
+    <a
+        href="{{ url_for(
+                'create_material',
+                course_id=course.id,
+                topic_id=topic.id
+            ) }}"
+        class="button button-primary"
+    >
+        + Add Material
+    </a>
 
     {% endif %}
 </div>
+
+<h2>Materials</h2>
 
 {% if topic.materials %}
 
@@ -25,15 +41,36 @@
     <article class="topic-card">
         <h3>{{ material.name }}</h3>
 
-        <p>Type: {{ material.file_type or "Unknown" }}</p>
+        {% if material.file_type %}
+
+        <p>
+            Type:
+            <strong>{{ material.file_type }}</strong>
+        </p>
+
+        {% endif %}
 
         <div class="topic-actions">
-            <a href="#" class="button button-primary"> Open </a>
+            <a href="{{ material.file_path }}" target="_blank" rel="noopener noreferrer" class="button button-primary">
+                Open
+            </a>
 
-            {% if current_user.role == "admin" or (current_user.role == "teacher" and course.teacher_id ==
-            current_user.id) %}
+            {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id
+            == current_user.id) %}
 
-            <button type="button" class="button-danger">Delete</button>
+            <form
+                method="POST"
+                action="{{ url_for(
+                        'delete_material',
+                        course_id=course.id,
+                        topic_id=topic.id,
+                        material_id=material.id
+                    ) }}"
+            >
+                <button type="submit" class="button-danger" onclick="return confirm('Delete this material?');">
+                    Delete
+                </button>
+            </form>
 
             {% endif %}
         </div>
@@ -47,7 +84,25 @@
 <div class="empty-state">
     <h2>No materials yet</h2>
 
-    <p>There are currently no materials in this topic.</p>
+    <p>This topic does not have any materials yet.</p>
+
+    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
+    current_user.id) %}
+
+    <br />
+
+    <a
+        href="{{ url_for(
+                'create_material',
+                course_id=course.id,
+                topic_id=topic.id
+            ) }}"
+        class="button button-primary"
+    >
+        Add the first material
+    </a>
+
+    {% endif %}
 </div>
 
 {% endif %}
@@ -64,4 +119,4 @@
     ← Back to Topics
 </a>
 
-{% endblock %}
+{% endblock %} ```

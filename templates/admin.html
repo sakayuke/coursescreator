@@ -1,0 +1,57 @@
+{% extends "base.html" %} {% block title %}Admin Dashboard{% endblock %} {% block content %}
+
+<div class="page-header">
+    ```
+    <div>
+        <h1>Admin Dashboard</h1>
+        <p>Manage the course platform and its users.</p>
+    </div>
+    ```
+</div>
+
+<div class="admin-stats">
+    ```
+    <div class="admin-stat-card">
+        <span class="admin-stat-label">Users</span>
+        <strong class="admin-stat-value">{{ users_count }}</strong>
+    </div>
+
+    <div class="admin-stat-card">
+        <span class="admin-stat-label">Teachers</span>
+        <strong class="admin-stat-value">{{ teachers_count }}</strong>
+    </div>
+
+    <div class="admin-stat-card">
+        <span class="admin-stat-label">Students</span>
+        <strong class="admin-stat-value">{{ students_count }}</strong>
+    </div>
+
+    <div class="admin-stat-card">
+        <span class="admin-stat-label">Courses</span>
+        <strong class="admin-stat-value">{{ courses_count }}</strong>
+    </div>
+    ```
+</div>
+
+<div class="admin-sections">
+    ```
+    <div class="admin-section">
+        <div>
+            <h2>User Management</h2>
+            <p>View users and manage their roles.</p>
+        </div>
+
+        <a href="{{ url_for('users') }}" class="button button-primary"> Manage Users </a>
+    </div>
+
+    <div class="admin-section">
+        <div>
+            <h2>Teacher Requests</h2>
+            <p>Review requests from students who want to become teachers.</p>
+        </div>
+
+        <a href="{{ url_for('teacher_requests') }}" class="button button-primary"> Review Requests </a>
+    </div>
+</div>
+
+{% endblock %}

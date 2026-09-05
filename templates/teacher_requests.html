@@ -1,0 +1,87 @@
+{% extends "base.html" %} {% block title %}Teacher Requests{% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Teacher Requests</h1>
+        <p>Review requests from students who want to become teachers.</p>
+    </div>
+</div>
+
+{% if requests %}
+
+<div class="users-card">
+    {% for teacher_request in requests %}
+
+    <div class="user-row">
+        <div class="user-main">
+            <div class="user-avatar user-avatar-light">{{ teacher_request.user.first_name[0]|upper }}</div>
+
+            <div>
+                <div class="user-name">{{ teacher_request.user.first_name }} {{ teacher_request.user.last_name }}</div>
+
+                <div class="user-id">User #{{ teacher_request.user.id }}</div>
+            </div>
+        </div>
+
+        <div>
+            <span class="role-badge role-{{ teacher_request.status }}"> {{ teacher_request.status|capitalize }} </span>
+        </div>
+
+        {% if teacher_request.status == "pending" %}
+
+        <div class="user-actions">
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'review_teacher_request',
+                    request_id=teacher_request.id,
+                    action='approve'
+                ) }}"
+            >
+                <button type="submit" class="button button-primary">Approve</button>
+            </form>
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'review_teacher_request',
+                    request_id=teacher_request.id,
+                    action='reject'
+                ) }}"
+            >
+                <button type="submit" class="button button-secondary">Reject</button>
+            </form>
+        </div>
+
+        {% endif %}
+    </div>
+
+    <div class="teacher-request-details">
+        <p>
+            <strong>Experience:</strong>
+            {{ teacher_request.experience }}
+        </p>
+
+        <p>
+            <strong>Reason:</strong>
+            {{ teacher_request.reason }}
+        </p>
+
+        <p>
+            <strong>Submitted:</strong>
+            {{ teacher_request.created_at }}
+        </p>
+    </div>
+
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No teacher requests</h2>
+
+    <p>There are currently no teacher requests.</p>
+</div>
+
+{% endif %} {% endblock %}

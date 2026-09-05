@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block title %}Teacher Request{% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Become a Teacher</h1>
+        <p>Submit a request to become a teacher on the platform.</p>
+    </div>
+</div>
+
+{% if teacher_request %}
+
+<div class="profile-card">
+    <div class="profile-info">
+        <h2>Your request</h2>
+
+        <p>
+            <strong>Status:</strong>
+            {{ teacher_request.status|capitalize }}
+        </p>
+
+        <p>
+            <strong>Experience:</strong>
+        </p>
+
+        <p>{{ teacher_request.experience }}</p>
+
+        <p>
+            <strong>Why do you want to become a teacher?</strong>
+        </p>
+
+        <p>{{ teacher_request.reason }}</p>
+    </div>
+</div>
+
+{% if teacher_request.status == "rejected" %}
+
+<div class="form-actions">
+    <a href="{{ url_for('teacher_request') }}" class="button button-primary"> Submit a new request </a>
+</div>
+
+{% endif %} {% else %}
+
+<form method="POST">
+    <label for="experience">Teaching experience</label>
+
+    <textarea
+        id="experience"
+        name="experience"
+        rows="6"
+        placeholder="Describe your previous teaching experience..."
+        required
+    ></textarea>
+
+    <br /><br />
+
+    <label for="reason">Why do you want to become a teacher?</label>
+
+    <textarea
+        id="reason"
+        name="reason"
+        rows="6"
+        placeholder="Explain why you want to teach on the platform..."
+        required
+    ></textarea>
+
+    <br /><br />
+
+    <div class="form-actions">
+        <button type="submit" class="button button-primary">Submit Request</button>
+
+        <a href="{{ url_for('profile') }}" class="button button-secondary"> Cancel </a>
+    </div>
+</form>
+
+{% endif %} {% endblock %}

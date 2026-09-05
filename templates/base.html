@@ -21,11 +21,10 @@
                 {% if current_user.is_authenticated %}
 
                 <a href="{{ url_for('profile') }}" class="user-profile">
-                    <div class="user-avatar">{{ current_user.email[0]|upper }}</div>
+                    <div class="user-avatar">{{ current_user.first_name[0]|upper }}</div>
 
                     <div class="user-info">
-                        <span class="username"> {{ current_user.email }} </span>
-
+                        <span class="username"> {{ current_user.first_name }} {{ current_user.last_name }} </span>
                         <span class="user-role"> {{ current_user.role }} </span>
                     </div>
                 </a>

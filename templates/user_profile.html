@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %} {{ user.email }} - Profile {% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %} {{ user.first_name }} {{ user.last_name }} - Profile {% endblock %} {% block content %}
 
 <div class="page-header">
     <div>
@@ -9,10 +9,10 @@
 </div>
 
 <div class="profile-card">
-    <div class="profile-avatar">{{ user.email[0]|upper }}</div>
+    <div class="profile-avatar">{{ user.first_name[0]|upper }}</div>
 
     <div class="profile-info">
-        <h2>{{ user.email }}</h2>
+        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
 
         <p class="profile-role">{{ user.role }}</p>
     </div>
@@ -22,7 +22,7 @@
     <div class="profile-detail">
         <span class="profile-label"> Username </span>
 
-        <strong> {{ user.email }} </strong>
+        <strong> {{ user.first_name }} {{ user.last_name }} </strong>
     </div>
 
     <div class="profile-detail">

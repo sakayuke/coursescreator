@@ -12,6 +12,26 @@ from app.extensions import db
 
 from app.models import User, Course, Topic, Material
 
+import re
+
+def validate_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 characters long."
+
+    if not re.search(r"[A-Z]", password):
+        return "Password must contain at least one uppercase letter."
+
+    if not re.search(r"[a-z]", password):
+        return "Password must contain at least one lowercase letter."
+
+    if not re.search(r"\d", password):
+        return "Password must contain at least one digit."
+
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-\\[\]/+=;'`~]", password):
+        return "Password must contain at least one special character."
+
+    return None
+
 app = create_app()
 
 @app.cli.command("create-admin")
@@ -34,10 +54,13 @@ def create_admin():
     password_hash = generate_password_hash(password)
 
     user = User(
-        email=email,
-        password_hash=password_hash,
-        role="admin"
-    )
+    first_name="Admin",
+    last_name="User",
+    email=email,
+    password_hash=password_hash,
+    role="admin"
+)
+
 
     db.session.add(user)
     db.session.commit()
@@ -78,17 +101,27 @@ def user_profile(user_id):
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        email = request.form["email"]
+        first_name = request.form["first_name"].strip()
+        last_name = request.form["last_name"].strip()
+        email = request.form["email"].strip().lower()
         password = request.form["password"]
         password_confirm = request.form["password_confirm"]
+
+        if not first_name or not last_name:
+            flash("First name and last name are required.", "error")
+            return render_template("register.html")
 
         if password != password_confirm:
             flash("Passwords do not match.", "error")
             return render_template("register.html")
 
-        existing_user = User.query.filter_by(
-    email=email
-).first()
+        password_error = validate_password(password)
+
+        if password_error:
+            flash(password_error, "error")
+            return render_template("register.html")
+
+        existing_user = User.query.filter_by(email=email).first()
 
         if existing_user:
             flash("This email is already registered.", "error")
@@ -97,17 +130,17 @@ def register():
         password_hash = generate_password_hash(password)
 
         user = User(
-    email=email,
-    password_hash=password_hash,
-    role="student"
-)
-        
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password_hash=password_hash,
+            role="student"
+        )
 
         db.session.add(user)
         db.session.commit()
 
         flash("Account created successfully. You can now log in.", "success")
-
         return redirect(url_for("login"))
 
     return render_template("register.html")
@@ -143,6 +176,39 @@ def logout():
 @login_required
 def profile():
     return render_template("profile.html")
+
+
+@app.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    if request.method == "POST":
+        first_name = request.form["first_name"].strip()
+        last_name = request.form["last_name"].strip()
+        email = request.form["email"].strip().lower()
+
+        if not first_name or not last_name or not email:
+            flash("All fields are required.", "error")
+            return render_template("edit_profile.html")
+
+        existing_user = User.query.filter(
+            User.email == email,
+            User.id != current_user.id
+        ).first()
+
+        if existing_user:
+            flash("This email is already registered.", "error")
+            return render_template("edit_profile.html")
+
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.email = email
+
+        db.session.commit()
+
+        flash("Profile updated successfully.", "success")
+        return redirect(url_for("profile"))
+
+    return render_template("edit_profile.html")
 
 
 @app.route("/admin")

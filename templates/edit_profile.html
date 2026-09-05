@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block title %}Edit Profile{% endblock %} {% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Edit Profile</h1>
+        <p>Update your account information.</p>
+    </div>
+</div>
+
+<form method="POST">
+    <label for="first_name">First name</label>
+    <input id="first_name" type="text" name="first_name" value="{{ current_user.first_name }}" required />
+
+    <br /><br />
+
+    <label for="last_name">Last name</label>
+    <input id="last_name" type="text" name="last_name" value="{{ current_user.last_name }}" required />
+
+    <br /><br />
+
+    <label for="email">Email</label>
+    <input id="email" type="email" name="email" value="{{ current_user.email }}" required />
+
+    <br /><br />
+
+    <div class="form-actions">
+        <button type="submit" class="button button-primary">Save changes</button>
+
+        <a href="{{ url_for('profile') }}" class="button button-secondary"> Cancel </a>
+    </div>
+</form>
+
+{% endblock %}

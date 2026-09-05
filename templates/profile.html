@@ -9,10 +9,10 @@
 </div>
 
 <div class="profile-card">
-    <div class="profile-avatar">{{ current_user.email[0]|upper }}</div>
+    <div class="profile-avatar">{{ current_user.first_name[0]|upper }}</div>
 
     <div class="profile-info">
-        <h2>{{ current_user.email }}</h2>
+        <h2>{{ current_user.first_name }} {{ current_user.last_name }}</h2>
 
         <p class="profile-role">{{ current_user.role }}</p>
     </div>
@@ -20,8 +20,7 @@
 
 <div class="profile-details">
     <div class="profile-detail">
-        <span class="profile-label"> Username </span>
-
+        <span class="profile-label"> Email </span>
         <strong> {{ current_user.email }} </strong>
     </div>
 
@@ -39,6 +38,8 @@
 </div>
 
 <div class="form-actions">
+    <a href="{{ url_for('edit_profile') }}" class="button button-primary"> Edit Profile </a>
+
     <a href="{{ url_for('courses') }}" class="button button-primary"> Go to Courses </a>
 
     <a href="{{ url_for('logout') }}" class="button button-secondary"> Logout </a>

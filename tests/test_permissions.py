@@ -44,28 +44,36 @@ def client(app):
 def user_ids(app):
     with app.app_context():
         admin = User(
-            email="admin@test.com",
-            password_hash="test",
-            role="admin",
-        )
+    first_name="Admin",
+    last_name="Test",
+    email="admin@test.com",
+    password_hash="test",
+    role="admin",
+)
 
         teacher = User(
-            email="teacher@test.com",
-            password_hash="test",
-            role="teacher",
-        )
+    first_name="Teacher",
+    last_name="Test",
+    email="teacher@test.com",
+    password_hash="test",
+    role="teacher",
+)
 
         other_teacher = User(
-            email="other@test.com",
-            password_hash="test",
-            role="teacher",
-        )
+    first_name="Other",
+    last_name="Teacher",
+    email="other@test.com",
+    password_hash="test",
+    role="teacher",
+)
 
         student = User(
-            email="student@test.com",
-            password_hash="test",
-            role="student",
-        )
+    first_name="Student",
+    last_name="Test",
+    email="student@test.com",
+    password_hash="test",
+    role="student",
+)
 
         db.session.add_all([
             admin,

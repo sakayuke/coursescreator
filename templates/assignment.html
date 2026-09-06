@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ assignment.title }}</h1>
+        <p>{{ course.name }} → {{ topic.name }}</p>
+    </div>
+</div>
+
+<div class="topic-card">
+    <h2>{{ assignment.title }}</h2>
+    <p>{{ assignment.description }}</p>
+</div>
+
+{% if current_user.role == "student" %}
+
+
+<br>
+
+{% if submission %}
+<div class="topic-card">
+    <h2>Your Submission</h2>
+
+    <p>{{ submission.content }}</p>
+
+    {% if submission.grade is not none %}
+    <p>
+        <strong>Grade:</strong>
+        {{ submission.grade }}/100
+    </p>
+    {% endif %}
+
+    {% if submission.feedback %}
+    <p>
+        <strong>Feedback:</strong>
+        {{ submission.feedback }}
+    </p>
+    {% endif %}
+</div>
+
+{% else %}
+<form
+    method="POST"
+    action="{{ url_for('submit_assignment', assignment_id=assignment.id) }}"
+>
+    <div class="form-group">
+        <label for="content">Your Answer</label>
+
+        <textarea
+            id="content"
+            name="content"
+            rows="10"
+            required
+        ></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="button button-primary">
+            Submit Assignment
+        </button>
+    </div>
+</form>
+{% endif %}
+
+
+{% endif %}
+
+<br>
+
+<a
+href="{{ url_for('assignments', topic_id=topic.id) }}"
+class="button button-secondary"
+
+>
+
+
+← Back to Assignments
+
+
+</a>
+{% endblock %}

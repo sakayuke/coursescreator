@@ -1,34 +1,101 @@
-{% extends "base.html" %} {% block title %}Register{% endblock %} {% block content %}
+{% extends "base.html" %}
 
-<h1>Create Account</h1>
+{% block title %}Register{% endblock %}
 
-<form method="POST">
-    <label for="first_name">First name</label>
-    <input id="first_name" type="text" name="first_name" placeholder="Enter your first name" required />
+{% block content %}
 
-    <br /><br />
+<div class="auth-page">
+    <div class="auth-card">
 
-    <label for="last_name">Last name</label>
-    <input id="last_name" type="text" name="last_name" placeholder="Enter your last name" required />
 
-    <br /><br />
+    <div class="page-header">
+        <div>
+            <h1>Create Account</h1>
+            <p>Create an account to start learning.</p>
+        </div>
+    </div>
 
-    <label for="email">Email</label>
-    <input id="email" type="email" name="email" placeholder="Enter your email" required />
+    <form method="POST">
 
-    <br /><br />
+        <div class="form-group">
+            <label for="first_name">First name</label>
 
-    <label for="password">Password</label>
-    <input id="password" type="password" name="password" placeholder="Choose a password" required />
+            <input
+                id="first_name"
+                type="text"
+                name="first_name"
+                placeholder="Enter your first name"
+                required
+            >
+        </div>
 
-    <br /><br />
+        <div class="form-group">
+            <label for="last_name">Last name</label>
 
-    <label for="password_confirm">Confirm password</label>
-    <input id="password_confirm" type="password" name="password_confirm" placeholder="Repeat your password" required />
+            <input
+                id="last_name"
+                type="text"
+                name="last_name"
+                placeholder="Enter your last name"
+                required
+            >
+        </div>
 
-    <br /><br />
+        <div class="form-group">
+            <label for="email">Email</label>
 
-    <button type="submit">Sign up</button>
-</form>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+            >
+        </div>
 
+        <div class="form-group">
+            <label for="password">Password</label>
+
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Choose a password"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirm">Confirm password</label>
+
+            <input
+                id="password_confirm"
+                type="password"
+                name="password_confirm"
+                placeholder="Repeat your password"
+                required
+            >
+        </div>
+
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Sign Up
+            </button>
+
+            <a
+                href="{{ url_for('login') }}"
+                class="button button-secondary"
+            >
+                Already have an account?
+            </a>
+        </div>
+
+    </form>
+</div>
+
+
+</div>
 {% endblock %}

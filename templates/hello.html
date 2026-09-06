@@ -1,17 +1,53 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Hello</title>
-    </head>
+{% extends "base.html" %}
 
-    <body>
-        <h1>Enter your name</h1>
+{% block title %}Hello{% endblock %}
 
-        <form method="POST">
-            <input type="text" name="name" />
-            <input type="number" name="age" />
-            <button type="submit">Send</button>
-        </form>
-    </body>
-</html>
+{% block content %}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="page-header">
+            <div>
+                <h1>Enter your name</h1>
+                <p>Fill in your information below.</p>
+            </div>
+        </div>
+
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Name</label>
+
+            <input
+                id="name"
+                type="text"
+                name="name"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age</label>
+
+            <input
+                id="age"
+                type="number"
+                name="age"
+                required
+            >
+        </div>
+
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Send
+            </button>
+        </div>
+    </form>
+</div>
+
+
+</div>
+{% endblock %}

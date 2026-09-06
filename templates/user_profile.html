@@ -1,45 +1,72 @@
-{% extends "base.html" %} {% block title %} {{ user.first_name }} {{ user.last_name }} - Profile {% endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}
+{{ user.first_name }} {{ user.last_name }} - Profile
+{% endblock %}
+
+{% block content %}
 
 <div class="page-header">
     <div>
         <h1>User Profile</h1>
-
         <p>View account information.</p>
     </div>
 </div>
 
 <div class="profile-card">
-    <div class="profile-avatar">{{ user.first_name[0]|upper }}</div>
 
-    <div class="profile-info">
-        <h2>{{ user.first_name }} {{ user.last_name }}</h2>
 
-        <p class="profile-role">{{ user.role }}</p>
-    </div>
+<div class="profile-avatar">
+    {{ user.first_name[0]|upper }}
+</div>
+
+<div class="profile-info">
+    <h2>
+        {{ user.first_name }} {{ user.last_name }}
+    </h2>
+
+    <p class="profile-role">
+        {{ user.role }}
+    </p>
+</div>
+
+
 </div>
 
 <div class="profile-details">
-    <div class="profile-detail">
-        <span class="profile-label"> Username </span>
 
-        <strong> {{ user.first_name }} {{ user.last_name }} </strong>
-    </div>
 
-    <div class="profile-detail">
-        <span class="profile-label"> Role </span>
+<div class="profile-detail">
+    <span class="profile-label">Username</span>
+    <strong>
+        {{ user.first_name }} {{ user.last_name }}
+    </strong>
+</div>
 
-        <strong> {{ user.role|capitalize }} </strong>
-    </div>
+<div class="profile-detail">
+    <span class="profile-label">Role</span>
+    <strong>
+        {{ user.role|capitalize }}
+    </strong>
+</div>
 
-    <div class="profile-detail">
-        <span class="profile-label"> User ID </span>
+<div class="profile-detail">
+    <span class="profile-label">User ID</span>
+    <strong>
+        #{{ user.id }}
+    </strong>
+</div>
 
-        <strong> #{{ user.id }} </strong>
-    </div>
+
 </div>
 
 <div class="form-actions">
-    <a href="{{ url_for('users') }}" class="button button-secondary"> ← Back to Users </a>
+    <a
+        href="{{ url_for('users') }}"
+        class="button button-secondary"
+    >
+        ← Back to Users
+    </a>
 </div>
 
 {% endblock %}

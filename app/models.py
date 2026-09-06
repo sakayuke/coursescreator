@@ -5,9 +5,11 @@ from .extensions import db
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
-    __table_args__ = {"schema": "dbo"}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     first_name = db.Column(
         db.String(100),
@@ -42,24 +44,25 @@ course_students = db.Table(
     db.Column(
         "course_id",
         db.Integer,
-        db.ForeignKey("dbo.courses.id"),
+        db.ForeignKey("courses.id"),
         primary_key=True
     ),
     db.Column(
         "student_id",
         db.Integer,
-        db.ForeignKey("dbo.users.id"),
+        db.ForeignKey("users.id"),
         primary_key=True
-    ),
-    schema="dbo"
+    )
 )
 
 
 class Course(db.Model):
     __tablename__ = "courses"
-    __table_args__ = {"schema": "dbo"}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     name = db.Column(
         db.String(150),
@@ -72,7 +75,7 @@ class Course(db.Model):
 
     teacher_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.users.id"),
+        db.ForeignKey("users.id"),
         nullable=False
     )
 
@@ -96,7 +99,6 @@ class Course(db.Model):
 
 class Topic(db.Model):
     __tablename__ = "topics"
-    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -105,7 +107,7 @@ class Topic(db.Model):
 
     course_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.courses.id"),
+        db.ForeignKey("courses.id"),
         nullable=False
     )
 
@@ -123,10 +125,21 @@ class Topic(db.Model):
         back_populates="topics"
     )
 
+    materials = db.relationship(
+        "Material",
+        back_populates="topic",
+        cascade="all, delete-orphan"
+    )
+
+    assignments = db.relationship(
+        "Assignment",
+        back_populates="topic",
+        cascade="all, delete-orphan"
+    )
+
 
 class Material(db.Model):
     __tablename__ = "materials"
-    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -135,12 +148,12 @@ class Material(db.Model):
 
     topic_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.topics.id"),
+        db.ForeignKey("topics.id"),
         nullable=False
     )
 
     name = db.Column(
-        db.String(150),
+        db.String(200),
         nullable=False
     )
 
@@ -150,23 +163,26 @@ class Material(db.Model):
     )
 
     file_type = db.Column(
-        db.String(100)
+        db.String(50)
     )
 
     topic = db.relationship(
         "Topic",
-        backref="materials"
+        back_populates="materials"
     )
+
 
 class TeacherRequest(db.Model):
     __tablename__ = "teacher_requests"
-    __table_args__ = {"schema": "dbo"}
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.users.id"),
+        db.ForeignKey("users.id"),
         nullable=False
     )
 
@@ -194,12 +210,15 @@ class TeacherRequest(db.Model):
 
     user = db.relationship(
         "User",
-        backref=db.backref("teacher_requests", lazy=True)
+        backref=db.backref(
+            "teacher_requests",
+            lazy=True
+        )
     )
+
 
 class Assignment(db.Model):
     __tablename__ = "assignments"
-    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -208,7 +227,7 @@ class Assignment(db.Model):
 
     topic_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.topics.id"),
+        db.ForeignKey("topics.id"),
         nullable=False
     )
 
@@ -224,15 +243,18 @@ class Assignment(db.Model):
 
     topic = db.relationship(
         "Topic",
-        backref=db.backref(
-            "assignments",
-            lazy=True
-        )
+        back_populates="assignments"
     )
+
+    submissions = db.relationship(
+        "Submission",
+        back_populates="assignment",
+        cascade="all, delete-orphan"
+    )
+
 
 class Submission(db.Model):
     __tablename__ = "submissions"
-    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -241,13 +263,13 @@ class Submission(db.Model):
 
     assignment_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.assignments.id"),
+        db.ForeignKey("assignments.id"),
         nullable=False
     )
 
     student_id = db.Column(
         db.Integer,
-        db.ForeignKey("dbo.users.id"),
+        db.ForeignKey("users.id"),
         nullable=False
     )
 
@@ -274,10 +296,7 @@ class Submission(db.Model):
 
     assignment = db.relationship(
         "Assignment",
-        backref=db.backref(
-            "submissions",
-            lazy=True
-        )
+        back_populates="submissions"
     )
 
     student = db.relationship(

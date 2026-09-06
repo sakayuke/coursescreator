@@ -6,26 +6,20 @@
 
 <p>Topic: <strong>{{ topic.name }}</strong></p>
 
-<form method="POST">
-    <label for="name">Material name:</label>
+<form method="POST" enctype="multipart/form-data">
+<label for="name">Material name:</label>
 
-    <input type="text" id="name" name="name" required />
+<input type="text" id="name" name="name" required />
 
-    <br /><br />
+<br /><br />
 
-    <label for="file_path">File path or URL:</label>
+<label for="file">File:</label>
 
-    <input type="text" id="file_path" name="file_path" placeholder="https://example.com/file.pdf" required />
+<input type="file" id="file" name="file" required />
 
-    <br /><br />
+<br /><br />
 
-    <label for="file_type">File type:</label>
-
-    <input type="text" id="file_type" name="file_type" placeholder="PDF, DOCX, XLSX, MP4..." />
-
-    <br /><br />
-
-    <button type="submit">Add Material</button>
+<button type="submit">Add Material</button>
 </form>
 
 <br />

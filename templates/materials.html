@@ -1,5 +1,8 @@
-```html {% extends "base.html" %} {% block title %} {{ topic.name }} - Materials {% endblock %} {% block content %}
+{% extends "base.html" %}
 
+{% block title %}{{ topic.name }} - Materials{% endblock %}
+
+{% block content %}
 <div class="page-header">
     <div>
         <h1>{{ topic.name }}</h1>
@@ -14,15 +17,15 @@
         </p>
     </div>
 
-    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
-    current_user.id) %}
+    {% if current_user.role in ("admin", "superadmin")
+        or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
 
     <a
         href="{{ url_for(
-                'create_material',
-                course_id=course.id,
-                topic_id=topic.id
-            ) }}"
+            'create_material',
+            course_id=course.id,
+            topic_id=topic.id
+        ) }}"
         class="button button-primary"
     >
         + Add Material
@@ -36,78 +39,90 @@
 {% if topic.materials %}
 
 <div class="topic-grid">
+
     {% for material in topic.materials %}
 
     <article class="topic-card">
+
         <h3>{{ material.name }}</h3>
 
         {% if material.file_type %}
-
         <p>
             Type:
             <strong>{{ material.file_type }}</strong>
         </p>
-
         {% endif %}
 
         <div class="topic-actions">
-            <a href="{{ material.file_path }}" target="_blank" rel="noopener noreferrer" class="button button-primary">
+
+            <a
+                href="{{ material.file_path }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="button button-primary"
+            >
                 Open
             </a>
 
-            {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id
-            == current_user.id) %}
+            {% if current_user.role in ("admin", "superadmin")
+                or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
 
             <form
                 method="POST"
                 action="{{ url_for(
-                        'delete_material',
-                        course_id=course.id,
-                        topic_id=topic.id,
-                        material_id=material.id
-                    ) }}"
+                    'delete_material',
+                    course_id=course.id,
+                    topic_id=topic.id,
+                    material_id=material.id
+                ) }}"
             >
-                <button type="submit" class="button-danger" onclick="return confirm('Delete this material?');">
+                <button
+                    type="submit"
+                    class="button button-danger"
+                    onclick="return confirm('Delete this material?');"
+                >
                     Delete
                 </button>
             </form>
 
             {% endif %}
+
         </div>
+
     </article>
 
     {% endfor %}
+
 </div>
 
 {% else %}
 
 <div class="empty-state">
-    <h2>No materials yet</h2>
 
+    <h2>No materials yet</h2>
     <p>This topic does not have any materials yet.</p>
 
-    {% if current_user.role in ("admin", "superadmin") or (current_user.role == "teacher" and course.teacher_id ==
-    current_user.id) %}
-
-    <br />
+    {% if current_user.role in ("admin", "superadmin")
+        or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
 
     <a
         href="{{ url_for(
-                'create_material',
-                course_id=course.id,
-                topic_id=topic.id
-            ) }}"
+            'create_material',
+            course_id=course.id,
+            topic_id=topic.id
+        ) }}"
         class="button button-primary"
     >
-        Add the first material
+        Add the First Material
     </a>
 
     {% endif %}
+
 </div>
 
 {% endif %}
 
-<br />
+<br>
 
 <a
     href="{{ url_for(
@@ -119,4 +134,4 @@
     ← Back to Topics
 </a>
 
-{% endblock %} ```
+{% endblock %}

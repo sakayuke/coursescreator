@@ -1,85 +1,146 @@
-{% extends "base.html" %} {% block title %}Users{% endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
 
 <div class="page-header">
-    ```
     <div>
         <h1>Users</h1>
         <p>Manage users and their roles.</p>
     </div>
-    ```
 </div>
 
 {% if users %}
 
 <div class="users-card">
-    ```
-    <div class="users-header">
-        <div>User</div>
-        <div>Role</div>
-        <div>Actions</div>
-    </div>
 
-    {% for user in users %}
 
-    <div class="user-row">
-        <div class="user-main">
-            <div class="user-avatar user-avatar-light">{{ user.first_name[0]|upper }}</div>
+<div class="users-header">
+    <div>User</div>
+    <div>Role</div>
+    <div>Actions</div>
+</div>
 
-            <div>
-                <div class="user-name">{{ user.first_name }} {{ user.last_name }}</div>
+{% for user in users %}
 
-                <div class="user-id">User #{{ user.id }}</div>
-            </div>
+<div class="user-row">
+
+    <div class="user-main">
+
+        <div class="user-avatar user-avatar-light">
+            {{ user.first_name[0]|upper }}
         </div>
 
         <div>
-            <span class="role-badge role-{{ user.role }}"> {{ user.role|capitalize }} </span>
+            <div class="user-name">
+                {{ user.first_name }} {{ user.last_name }}
+            </div>
+
+            <div class="user-id">
+                User #{{ user.id }}
+            </div>
         </div>
 
-        <div class="user-actions">
-            <a href="{{ url_for('user_profile', user_id=user.id) }}" class="button button-secondary"> Profile </a>
-
-            {% if user.id != current_user.id %}
-
-            <form method="POST" action="{{ url_for('change_user_role', user_id=user.id) }}">
-                <select name="role">
-                    {% if user.role == "student" %}
-                    <option value="student" selected>Student</option>
-                    {% else %}
-                    <option value="student">Student</option>
-                    {% endif %} {% if user.role == "teacher" %}
-                    <option value="teacher" selected>Teacher</option>
-                    {% else %}
-                    <option value="teacher">Teacher</option>
-                    {% endif %} {% if current_user.role == "superadmin" %} {% if user.role == "admin" %}
-                    <option value="admin" selected>Admin</option>
-                    {% else %}
-                    <option value="admin">Admin</option>
-                    {% endif %} {% if user.role == "superadmin" %}
-                    <option value="superadmin" selected>Superadmin</option>
-                    {% else %}
-                    <option value="superadmin">Superadmin</option>
-                    {% endif %} {% endif %}
-                </select>
-
-                <button type="submit" class="button button-primary">Change role</button>
-            </form>
-
-            {% endif %}
-        </div>
     </div>
 
-    {% endfor %} ```
+    <div>
+        <span class="role-badge role-{{ user.role }}">
+            {{ user.role|capitalize }}
+        </span>
+    </div>
+
+    <div class="user-actions">
+
+        <a
+            href="{{ url_for('user_profile', user_id=user.id) }}"
+            class="button button-secondary"
+        >
+            Profile
+        </a>
+
+        {% if user.id != current_user.id %}
+
+        <form
+            method="POST"
+            action="{{ url_for('change_user_role', user_id=user.id) }}"
+        >
+
+            <select name="role">
+
+                {% if user.role == "student" %}
+                <option value="student" selected>
+                    Student
+                </option>
+                {% else %}
+                <option value="student">
+                    Student
+                </option>
+                {% endif %}
+
+                {% if user.role == "teacher" %}
+                <option value="teacher" selected>
+                    Teacher
+                </option>
+                {% else %}
+                <option value="teacher">
+                    Teacher
+                </option>
+                {% endif %}
+
+                {% if current_user.role == "superadmin" %}
+
+                    {% if user.role == "admin" %}
+                    <option value="admin" selected>
+                        Admin
+                    </option>
+                    {% else %}
+                    <option value="admin">
+                        Admin
+                    </option>
+                    {% endif %}
+
+                    {% if user.role == "superadmin" %}
+                    <option value="superadmin" selected>
+                        Superadmin
+                    </option>
+                    {% else %}
+                    <option value="superadmin">
+                        Superadmin
+                    </option>
+                    {% endif %}
+
+                {% endif %}
+
+            </select>
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Change role
+            </button>
+
+        </form>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endfor %}
+
+
 </div>
 
 {% else %}
 
 <div class="empty-state">
-    ```
     <h2>No users found</h2>
-
     <p>There are currently no registered users.</p>
-    ```
 </div>
 
-{% endif %} {% endblock %}
+{% endif %}
+
+{% endblock %}

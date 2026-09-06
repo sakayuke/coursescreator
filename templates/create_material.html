@@ -1,43 +1,75 @@
-```html {% extends "base.html" %} {% block title %} Add Material {% endblock %} {% block content %}
+{% extends "base.html" %}
 
-<h1>Add Material</h1>
+{% block title %}Add Material{% endblock %}
 
-<p>Course: <strong>{{ course.name }}</strong></p>
+{% block content %}
 
-<p>Topic: <strong>{{ topic.name }}</strong></p>
+<div class="page-header">
+    <div>
+        <h1>Add Material</h1>
+        <p>
+            {{ course.name }} → {{ topic.name }}
+        </p>
+    </div>
+</div>
 
-<form method="POST">
-    <label for="name">Material name:</label>
+<div class="form-card">
+    <form method="POST">
 
-    <input type="text" id="name" name="name" required />
 
-    <br /><br />
+    <div class="form-group">
+        <label for="name">Material name</label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            required
+        >
+    </div>
 
-    <label for="file_path">File path or URL:</label>
+    <div class="form-group">
+        <label for="file_path">File path or URL</label>
+        <input
+            type="text"
+            id="file_path"
+            name="file_path"
+            placeholder="https://example.com/file.pdf"
+            required
+        >
+    </div>
 
-    <input type="text" id="file_path" name="file_path" placeholder="https://example.com/file.pdf" required />
+    <div class="form-group">
+        <label for="file_type">File type</label>
+        <input
+            type="text"
+            id="file_type"
+            name="file_type"
+            placeholder="PDF, DOCX, XLSX, MP4..."
+        >
+    </div>
 
-    <br /><br />
+    <div class="form-actions">
+        <button
+            type="submit"
+            class="button button-primary"
+        >
+            Add Material
+        </button>
 
-    <label for="file_type">File type:</label>
+        <a
+            href="{{ url_for(
+                'topic_materials',
+                course_id=course.id,
+                topic_id=topic.id
+            ) }}"
+            class="button button-secondary"
+        >
+            ← Back to Materials
+        </a>
+    </div>
 
-    <input type="text" id="file_type" name="file_type" placeholder="PDF, DOCX, XLSX, MP4..." />
-
-    <br /><br />
-
-    <button type="submit">Add Material</button>
 </form>
 
-<br />
 
-<a
-    href="{{ url_for(
-        'topic_materials',
-        course_id=course.id,
-        topic_id=topic.id
-    ) }}"
->
-    ← Back to Materials
-</a>
-
-{% endblock %} ```
+</div>
+{% endblock %}

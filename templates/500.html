@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server error{% endblock %}
+
+{% block content %}
+
+<main class="error-page">
+    <div class="error-card">
+        <h1>500</h1>
+        <h2>Something went wrong</h2>
+        <p>An unexpected server error occurred.</p>
+        <a href="{{ url_for('courses') }}" class="button button-primary">
+            Go to courses
+        </a>
+    </div>
+</main>
+{% endblock %}

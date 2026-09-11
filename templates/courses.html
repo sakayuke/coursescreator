@@ -20,16 +20,51 @@
     </div>
 
 
-    {% if current_user.role in ("admin", "superadmin", "teacher") %}
+    <div class="list-header-actions">
+        {% if current_user.role in ("admin", "superadmin", "teacher") %}
 
-        <a
-            href="{{ url_for('create_course') }}"
-            class="button button-primary"
+            <a
+                href="{{ url_for('create_course') }}"
+                class="button button-primary"
+            >
+                + Create Course
+            </a>
+
+        {% endif %}
+
+        <form
+            id="courses-search-form"
+            method="GET"
+            class="list-search{% if query %} is-open{% endif %}"
         >
-            + Create Course
-        </a>
+            <label class="sr-only" for="courses-search-input">
+                Search courses by name
+            </label>
+            <input
+                id="courses-search-input"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by name"
+            >
+            <button type="submit" class="list-search-submit" aria-label="Search courses" title="Search">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                </svg>
+            </button>
+        </form>
 
-    {% endif %}
+        <button
+            type="button"
+            class="list-search-toggle"
+            data-search-toggle
+            aria-label="Open course search"
+            aria-controls="courses-search-form"
+            aria-expanded="{{ 'true' if query else 'false' }}"
+        >
+            Search
+        </button>
+    </div>
 
 </div>
 
@@ -41,6 +76,14 @@
         {% for course in courses %}
 
             <article class="course-card">
+
+                {% if course.id in unread_course_ids %}
+                    <span
+                        class="course-notification"
+                        title="A graded assignment is waiting for you"
+                        aria-label="New grade notification"
+                    ></span>
+                {% endif %}
 
                 <div class="course-image">
                     {{ course.name[0]|upper }}
@@ -180,6 +223,13 @@
 
     </div>
 
+{% elif query %}
+
+    <div class="empty-state">
+        <h2>No matching courses</h2>
+        <p>No course name contains “{{ query }}”.</p>
+    </div>
+
 {% else %}
 
     <div class="empty-state">
@@ -197,4 +247,3 @@
 {% endif %}
 
 {% endblock %}
-

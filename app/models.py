@@ -288,6 +288,11 @@ class Submission(db.Model):
         nullable=True
     )
 
+    grade_seen_at = db.Column(
+        db.DateTime,
+        nullable=True
+    )
+
     submitted_at = db.Column(
         db.DateTime,
         nullable=False,

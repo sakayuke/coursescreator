@@ -27,15 +27,64 @@ def register_assignment_routes(app):
             if current_user not in course.students:
                 abort(403)
 
-        assignments = Assignment.query.filter_by(
+        query = request.args.get("q", "").strip()
+
+        assignments_query = Assignment.query.filter_by(
             topic_id=topic.id
-        ).all()
+        )
+
+        if query:
+            assignments_query = assignments_query.filter(
+                Assignment.title.ilike(f"%{query}%")
+            )
+
+        assignments = assignments_query.all()
+
+        status = request.args.get("status", "all")
+
+        if current_user.role == "student":
+            valid_statuses = {
+                "all",
+                "not_submitted",
+                "submitted",
+                "graded"
+            }
+
+            if status not in valid_statuses:
+                status = "all"
+
+            if status != "all":
+                def matches_status(assignment):
+                    submission = next(
+                        (
+                            item for item in assignment.submissions
+                            if item.student_id == current_user.id
+                        ),
+                        None
+                    )
+
+                    if status == "not_submitted":
+                        return submission is None
+
+                    if status == "submitted":
+                        return submission is not None and submission.grade is None
+
+                    return submission is not None and submission.grade is not None
+
+                assignments = [
+                    assignment for assignment in assignments
+                    if matches_status(assignment)
+                ]
+        else:
+            status = "all"
 
         return render_template(
             "assignments.html",
             topic=topic,
             course=course,
-            assignments=assignments
+            assignments=assignments,
+            query=query,
+            status=status
         )
 
 
@@ -66,6 +115,11 @@ def register_assignment_routes(app):
                 assignment_id=assignment.id,
                 student_id=current_user.id
             ).first()
+
+            if submission is not None and submission.grade is not None:
+                if submission.grade_seen_at is None:
+                    submission.grade_seen_at = db.func.getdate()
+                    db.session.commit()
 
         return render_template(
             "assignment.html",
@@ -368,4 +422,3 @@ def register_assignment_routes(app):
                 assignment_id=assignment.id
             )
         )
-

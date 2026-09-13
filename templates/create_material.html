@@ -14,60 +14,50 @@
 </div>
 
 <div class="form-card">
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
 
+        <div class="form-group">
+            <label for="name">Material name</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                required
+            >
+        </div>
 
-    <div class="form-group">
-        <label for="name">Material name</label>
-        <input
-            type="text"
-            id="name"
-            name="name"
-            required
-        >
-    </div>
+        <div class="form-group">
+            <label for="file">File</label>
+            <input
+                type="file"
+                id="file"
+                name="file"
+                required
+            >
+        </div>
 
-    <div class="form-group">
-        <label for="file_path">File path or URL</label>
-        <input
-            type="text"
-            id="file_path"
-            name="file_path"
-            placeholder="https://example.com/file.pdf"
-            required
-        >
-    </div>
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Add Material
+            </button>
 
-    <div class="form-group">
-        <label for="file_type">File type</label>
-        <input
-            type="text"
-            id="file_type"
-            name="file_type"
-            placeholder="PDF, DOCX, XLSX, MP4..."
-        >
-    </div>
+            <a
+                href="{{ url_for(
+                    'topic_materials',
+                    course_id=course.id,
+                    topic_id=topic.id
+                ) }}"
+                class="button button-secondary"
+            >
+                ← Back to Materials
+            </a>
+        </div>
 
-    <div class="form-actions">
-        <button
-            type="submit"
-            class="button button-primary"
-        >
-            Add Material
-        </button>
-
-        <a
-            href="{{ url_for(
-                'topic_materials',
-                course_id=course.id,
-                topic_id=topic.id
-            ) }}"
-            class="button button-secondary"
-        >
-            ← Back to Materials
-        </a>
-    </div>
-
+    </form>
+</div>
 </form>
 
 

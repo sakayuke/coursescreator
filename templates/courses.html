@@ -1,120 +1,200 @@
-{% extends "base.html" %} {% block title %} Courses {% endblock %} {% block content %}
+
+{% extends "base.html" %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
 
 <div class="page-header">
-    <div>
-        <h1>Courses</h1>
 
-        <p>Explore your courses and learning materials.</p>
+    <div>
+
+        <h1>
+            Courses
+        </h1>
+
+        <p>
+            Explore your courses and learning materials.
+        </p>
+
     </div>
+
 
     {% if current_user.role in ("admin", "superadmin", "teacher") %}
 
-    <a href="{{ url_for('create_course') }}" class="button button-primary"> + Create Course </a>
+        <a
+            href="{{ url_for('create_course') }}"
+            class="button button-primary"
+        >
+            + Create Course
+        </a>
 
     {% endif %}
+
 </div>
+
 
 {% if courses %}
 
-<div class="course-grid">
-    {% for course in courses %}
+    <div class="course-grid">
 
-    <article class="course-card">
-        <div class="course-image">{{ course.name[0]|upper }}</div>
+        {% for course in courses %}
 
-        <div class="course-content">
-            <h2 class="course-title">{{ course.name }}</h2>
+            <article class="course-card">
 
-            <p class="course-description">
-                {% if course.description %} {{ course.description }} {% else %} No description available. {% endif %}
-            </p>
+                <div class="course-image">
+                    {{ course.name[0]|upper }}
+                </div>
 
-            <div class="course-teacher">
-                Instructor:
-                <strong> {{ course.teacher.email }} </strong>
-            </div>
 
-            <div class="course-actions">
-                <a
-                    href="{{ url_for(
+                <div class="course-content">
+
+                    <h2 class="course-title">
+                        {{ course.name }}
+                    </h2>
+
+
+                    <p class="course-description">
+
+                        {% if course.description %}
+
+                            {{ course.description }}
+
+                        {% else %}
+
+                            No description available.
+
+                        {% endif %}
+
+                    </p>
+
+
+                    <div class="course-teacher">
+
+                        Instructor:
+
+                        <strong>
+                            {{ course.teacher.email }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="course-actions">
+
+                        <a
+                            href="{{ url_for(
                                 'course_topics',
                                 course_id=course.id
                             ) }}"
-                    class="button button-primary"
-                >
-                    View Course
-                </a>
+                            class="button button-primary"
+                        >
+                            View Course
+                        </a>
 
-                {% if current_user.role in ("admin", "superadmin") %}
 
-                <a
-                    href="{{ url_for(
+                        {% if current_user.role in ("admin", "superadmin") %}
+
+                            <a
+                                href="{{ url_for(
                                     'course_students',
                                     course_id=course.id
                                 ) }}"
-                    class="button button-secondary"
-                >
-                    Students
-                </a>
+                                class="button button-secondary"
+                            >
+                                Students
+                            </a>
 
-                {% endif %} {% if current_user.role == "admin" %}
+                        {% endif %}
 
-                <a
-                    href="{{ url_for(
+
+                        {% if current_user.role == "admin" %}
+
+                            <a
+                                href="{{ url_for(
                                     'edit_course',
                                     course_id=course.id
                                 ) }}"
-                    class="button button-secondary"
-                >
-                    Edit
-                </a>
+                                class="button button-secondary"
+                            >
+                                Edit
+                            </a>
 
-                <form
-                    method="POST"
-                    action="{{ url_for(
+                            <form
+                                method="POST"
+                                action="{{ url_for(
                                     'delete_course',
                                     course_id=course.id
                                 ) }}"
-                >
-                    <button type="submit" class="button-danger">Delete</button>
-                </form>
+                            >
 
-                {% elif current_user.role == "teacher" and course.teacher_id == current_user.id %}
+                                <button
+                                    type="submit"
+                                    class="button button-danger"
+                                >
+                                    Delete
+                                </button>
 
-                <a
-                    href="{{ url_for(
+                            </form>
+
+
+                        {% elif current_user.role == "teacher"
+                            and course.teacher_id == current_user.id %}
+
+                            <a
+                                href="{{ url_for(
                                     'edit_course',
                                     course_id=course.id
                                 ) }}"
-                    class="button button-secondary"
-                >
-                    Edit
-                </a>
+                                class="button button-secondary"
+                            >
+                                Edit
+                            </a>
 
-                <form
-                    method="POST"
-                    action="{{ url_for(
+                            <form
+                                method="POST"
+                                action="{{ url_for(
                                     'delete_course',
                                     course_id=course.id
                                 ) }}"
-                >
-                    <button type="submit" class="button-danger">Delete</button>
-                </form>
+                            >
 
-                {% endif %}
-            </div>
-        </div>
-    </article>
+                                <button
+                                    type="submit"
+                                    class="button button-danger"
+                                >
+                                    Delete
+                                </button>
 
-    {% endfor %}
-</div>
+                            </form>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        {% endfor %}
+
+    </div>
 
 {% else %}
 
-<div class="empty-state">
-    <h2>No courses yet</h2>
+    <div class="empty-state">
 
-    <p>There are currently no courses available.</p>
-</div>
+        <h2>
+            No courses yet
+        </h2>
 
-{% endif %} {% endblock %}
+        <p>
+            There are currently no courses available.
+        </p>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}
+

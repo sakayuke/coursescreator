@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ topic.name }} - Assignments{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ topic.name }}</h1>
+        <p>{{ course.name }}</p>
+    </div>
+
+
+{% if current_user.role in ("admin", "superadmin")
+    or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+<a
+    href="{{ url_for('create_assignment', topic_id=topic.id) }}"
+    class="button button-primary"
+>
+    + Assignment
+</a>
+{% endif %}
+
+
+</div>
+
+<h2>Assignments</h2>
+
+{% if assignments %}
+
+<div class="topic-grid">
+
+
+{% for assignment in assignments %}
+<article class="topic-card">
+
+    <h3>
+        <a
+            href="{{ url_for('view_assignment', assignment_id=assignment.id) }}"
+        >
+            {{ assignment.title }}
+        </a>
+    </h3>
+
+    <p>{{ assignment.description }}</p>
+
+    {% if current_user.role == "student" %}
+
+        {% set student_submission =
+            assignment.submissions
+            | selectattr("student_id", "equalto", current_user.id)
+            | first
+        %}
+
+        {% if student_submission %}
+
+            {% if student_submission.grade is not none %}
+            <p>
+                <strong>Status:</strong>
+                Graded
+            </p>
+
+            <p>
+                <strong>Grade:</strong>
+                {{ student_submission.grade }}/100
+            </p>
+
+            {% else %}
+            <p>
+                <strong>Status:</strong>
+                Submitted
+            </p>
+            {% endif %}
+
+        {% else %}
+        <p>
+            <strong>Status:</strong>
+            Not submitted
+        </p>
+        {% endif %}
+
+    {% endif %}
+
+    <div class="topic-actions">
+
+        <a
+            href="{{ url_for('view_assignment', assignment_id=assignment.id) }}"
+            class="button button-primary"
+        >
+            Open
+        </a>
+
+        {% if current_user.role in ("admin", "superadmin")
+            or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+
+        <a
+            href="{{ url_for('assignment_submissions', assignment_id=assignment.id) }}"
+            class="button button-secondary"
+        >
+            Submissions
+        </a>
+
+        <a
+            href="{{ url_for('edit_assignment', assignment_id=assignment.id) }}"
+            class="button button-secondary"
+        >
+            Edit
+        </a>
+
+        <form
+            method="POST"
+            action="{{ url_for('delete_assignment', assignment_id=assignment.id) }}"
+        >
+            <button
+                type="submit"
+                class="button button-danger"
+                onclick="return confirm('Delete this assignment?');"
+            >
+                Delete
+            </button>
+        </form>
+
+        {% endif %}
+
+    </div>
+</article>
+{% endfor %}
+
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No assignments yet</h2>
+
+
+<p>
+    This topic does not have any assignments yet.
+</p>
+
+{% if current_user.role in ("admin", "superadmin")
+    or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+<a
+    href="{{ url_for('create_assignment', topic_id=topic.id) }}"
+    class="button button-primary"
+>
+    Create Assignment
+</a>
+{% endif %}
+
+
+</div>
+
+{% endif %}
+
+<br>
+
+<a
+href="{{ url_for('topic_materials', course_id=course.id, topic_id=topic.id) }}"
+class="button button-secondary"
+
+>
+
+
+← Back to Materials
+
+
+</a>
+{% endblock %}

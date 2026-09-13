@@ -1,16 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Create Topic{% endblock %}
+{% block title %}Edit Assignment{% endblock %}
 
 {% block content %}
 
 <div class="page-header">
     <div>
-        <h1>Create Topic</h1>
-        <p>
-            Add a new topic to
-            <strong>{{ course.name }}</strong>.
-        </p>
+        <h1>Edit Assignment</h1>
+        <p>{{ course.name }} → {{ topic.name }}</p>
     </div>
 </div>
 
@@ -19,14 +16,15 @@
 
 
     <div class="form-group">
-        <label for="name">Topic name</label>
+        <label for="title">Title</label>
 
         <input
-            id="name"
             type="text"
-            name="name"
-            placeholder="e.g. Python Variables"
+            id="title"
+            name="title"
+            value="{{ assignment.title }}"
             required
+            maxlength="150"
         >
     </div>
 
@@ -36,8 +34,9 @@
         <textarea
             id="description"
             name="description"
-            placeholder="Describe what students will learn..."
-        ></textarea>
+            rows="8"
+            required
+        >{{ assignment.description }}</textarea>
     </div>
 
     <div class="form-actions">
@@ -45,13 +44,13 @@
             type="submit"
             class="button button-primary"
         >
-            Create Topic
+            Save Changes
         </button>
 
         <a
             href="{{ url_for(
-                'course_topics',
-                course_id=course.id
+                'assignments',
+                topic_id=topic.id
             ) }}"
             class="button button-secondary"
         >

@@ -1,37 +1,65 @@
-```html {% extends "base.html" %} {% block title %} Add Material {% endblock %} {% block content %}
+{% extends "base.html" %}
 
-<h1>Add Material</h1>
+{% block title %}Add Material{% endblock %}
 
-<p>Course: <strong>{{ course.name }}</strong></p>
+{% block content %}
 
-<p>Topic: <strong>{{ topic.name }}</strong></p>
+<div class="page-header">
+    <div>
+        <h1>Add Material</h1>
+        <p>
+            {{ course.name }} → {{ topic.name }}
+        </p>
+    </div>
+</div>
 
-<form method="POST" enctype="multipart/form-data">
-<label for="name">Material name:</label>
+<div class="form-card">
+    <form method="POST" enctype="multipart/form-data">
 
-<input type="text" id="name" name="name" required />
+        <div class="form-group">
+            <label for="name">Material name</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                required
+            >
+        </div>
 
-<br /><br />
+        <div class="form-group">
+            <label for="file">File</label>
+            <input
+                type="file"
+                id="file"
+                name="file"
+                required
+            >
+        </div>
 
-<label for="file">File:</label>
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Add Material
+            </button>
 
-<input type="file" id="file" name="file" required />
+            <a
+                href="{{ url_for(
+                    'topic_materials',
+                    course_id=course.id,
+                    topic_id=topic.id
+                ) }}"
+                class="button button-secondary"
+            >
+                ← Back to Materials
+            </a>
+        </div>
 
-<br /><br />
-
-<button type="submit">Add Material</button>
+    </form>
+</div>
 </form>
 
-<br />
 
-<a
-    href="{{ url_for(
-        'topic_materials',
-        course_id=course.id,
-        topic_id=topic.id
-    ) }}"
->
-    ← Back to Materials
-</a>
-
-{% endblock %} ```
+</div>
+{% endblock %}

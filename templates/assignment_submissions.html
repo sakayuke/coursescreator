@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}{{ assignment.title }} - Submissions{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ assignment.title }}</h1>
+        <p>{{ course.name }} → {{ topic.name }}</p>
+    </div>
+</div>
+
+<h2>Student Submissions</h2>
+
+{% if submissions %}
+
+<div class="topic-grid">
+
+    {% for submission in submissions %}
+
+    <article class="topic-card">
+
+        <h3>
+            {{ submission.student.first_name }}
+            {{ submission.student.last_name }}
+        </h3>
+
+        <p>{{ submission.content }}</p>
+
+        {% if submission.grade is not none %}
+
+        <p>
+            <strong>Grade:</strong>
+            {{ submission.grade }}/100
+        </p>
+
+        {% else %}
+
+        <p>
+            <strong>Grade:</strong>
+            Not graded
+        </p>
+
+        {% endif %}
+
+        <a
+            href="{{ url_for(
+                'view_submission',
+                submission_id=submission.id
+            ) }}"
+            class="button button-primary"
+        >
+            Open Submission
+        </a>
+
+    </article>
+
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty-state">
+    <h2>No submissions yet</h2>
+    <p>No students have submitted this assignment yet.</p>
+</div>
+
+{% endif %}
+
+<br>
+
+<a
+    href="{{ url_for(
+        'view_assignment',
+        assignment_id=assignment.id
+    ) }}"
+    class="button button-secondary"
+>
+    ← Back to Assignment
+</a>
+
+{% endblock %}

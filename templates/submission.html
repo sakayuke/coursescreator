@@ -1,86 +1,105 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}{{ submission.assignment.title }} - Submission{% endblock %}
+
+{% block content %}
 
 <div class="submission-page">
-    <div class="submission-header">
-        <div>
-            <h1>{{ submission.assignment.title }}</h1>
 
-            <p>
-                Student:
-                <strong> {{ submission.student.first_name }} {{ submission.student.last_name }} </strong>
-            </p>
-        </div>
+
+<div class="submission-header">
+    <div>
+        <h1>{{ submission.assignment.title }}</h1>
+
+        <p>
+            Student:
+            <strong>
+                {{ submission.student.first_name }}
+                {{ submission.student.last_name }}
+            </strong>
+        </p>
     </div>
-
-    <section class="submission-card">
-        <h2>Submission</h2>
-
-        <div class="submission-content">{{ submission.content }}</div>
-
-        <p class="submission-date">Submitted: {{ submission.submitted_at }}</p>
-    </section>
-
-    <section class="submission-card">
-        <h2>Grade</h2>
-
-        {% if submission.grade is not none %}
-
-        <div class="submission-grade">{{ submission.grade }} / 100</div>
-
-        {% else %}
-
-        <p>No grade yet.</p>
-
-        {% endif %} {% if submission.feedback %}
-
-        <div class="submission-feedback">
-            <h3>Teacher feedback</h3>
-
-            <p>{{ submission.feedback }}</p>
-        </div>
-
-        {% endif %}
-    </section>
-
-    {% if current_user.role in ("teacher", "admin", "superadmin") %}
-
-    <section class="submission-card">
-        <h2>Grade submission</h2>
-
-        <form
-            method="POST"
-            action="{{ url_for(
-                    'grade_submission',
-                    submission_id=submission.id
-                ) }}"
-        >
-            <div class="form-group">
-                <label for="grade"> Grade </label>
-
-                <input
-                    type="number"
-                    id="grade"
-                    name="grade"
-                    min="0"
-                    max="100"
-                    value="{{ submission.grade if submission.grade is not none else '' }}"
-                    required
-                />
-            </div>
-
-            <div class="form-group">
-                <label for="feedback"> Feedback </label>
-
-                <textarea id="feedback" name="feedback" rows="6" placeholder="Write feedback for the student...">
-{{ submission.feedback or '' }}</textarea
-                >
-            </div>
-
-            <button type="submit">Save grade</button>
-        </form>
-    </section>
-
-    {% endif %}
 </div>
 
+<section class="submission-card">
+    <h2>Submission</h2>
+
+    <div class="submission-content">
+        {{ submission.content }}
+    </div>
+
+    <p class="submission-date">
+        Submitted: {{ submission.submitted_at }}
+    </p>
+</section>
+
+<section class="submission-card">
+    <h2>Grade</h2>
+
+    {% if submission.grade is not none %}
+    <div class="submission-grade">
+        {{ submission.grade }} / 100
+    </div>
+    {% else %}
+    <p>No grade yet.</p>
+    {% endif %}
+
+    {% if submission.feedback %}
+    <div class="submission-feedback">
+        <h3>Teacher Feedback</h3>
+        <p>{{ submission.feedback }}</p>
+    </div>
+    {% endif %}
+</section>
+
+{% if current_user.role in ("teacher", "admin", "superadmin") %}
+<section class="submission-card">
+    <h2>Grade Submission</h2>
+
+    <form
+        method="POST"
+        action="{{ url_for(
+            'grade_submission',
+            submission_id=submission.id
+        ) }}"
+    >
+        <div class="form-group">
+            <label for="grade">Grade</label>
+
+            <input
+                type="number"
+                id="grade"
+                name="grade"
+                min="0"
+                max="100"
+                value="{{ submission.grade if submission.grade is not none else '' }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="feedback">Feedback</label>
+
+            <textarea
+                id="feedback"
+                name="feedback"
+                rows="6"
+                placeholder="Write feedback for the student..."
+            >{{ submission.feedback or '' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Save Grade
+            </button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+
+</div>
 {% endblock %}

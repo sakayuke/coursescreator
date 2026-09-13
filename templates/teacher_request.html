@@ -1,4 +1,8 @@
-{% extends "base.html" %} {% block title %}Teacher Request{% endblock %} {% block content %}
+{% extends "base.html" %}
+
+{% block title %}Teacher Request{% endblock %}
+
+{% block content %}
 
 <div class="page-header">
     <div>
@@ -13,34 +17,46 @@
     <div class="profile-info">
         <h2>Your request</h2>
 
-        <p>
-            <strong>Status:</strong>
-            {{ teacher_request.status|capitalize }}
-        </p>
 
-        <p>
-            <strong>Experience:</strong>
-        </p>
+    <p>
+        <strong>Status:</strong>
+        {{ teacher_request.status|capitalize }}
+    </p>
 
-        <p>{{ teacher_request.experience }}</p>
+    <p>
+        <strong>Experience:</strong>
+    </p>
 
-        <p>
-            <strong>Why do you want to become a teacher?</strong>
-        </p>
+    <p>{{ teacher_request.experience }}</p>
 
-        <p>{{ teacher_request.reason }}</p>
-    </div>
+    <p>
+        <strong>Why do you want to become a teacher?</strong>
+    </p>
+
+    <p>{{ teacher_request.reason }}</p>
+</div>
+
+
 </div>
 
 {% if teacher_request.status == "rejected" %}
 
 <div class="form-actions">
-    <a href="{{ url_for('teacher_request') }}" class="button button-primary"> Submit a new request </a>
+    <a
+        href="{{ url_for('teacher_request') }}"
+        class="button button-primary"
+    >
+        Submit a new request
+    </a>
 </div>
+{% endif %}
 
-{% endif %} {% else %}
+{% else %}
 
-<form method="POST">
+<form method="POST" class="form-card">
+
+
+<div class="form-group">
     <label for="experience">Teaching experience</label>
 
     <textarea
@@ -50,9 +66,9 @@
         placeholder="Describe your previous teaching experience..."
         required
     ></textarea>
+</div>
 
-    <br /><br />
-
+<div class="form-group">
     <label for="reason">Why do you want to become a teacher?</label>
 
     <textarea
@@ -62,14 +78,26 @@
         placeholder="Explain why you want to teach on the platform..."
         required
     ></textarea>
+</div>
 
-    <br /><br />
+<div class="form-actions">
+    <button
+        type="submit"
+        class="button button-primary"
+    >
+        Submit Request
+    </button>
 
-    <div class="form-actions">
-        <button type="submit" class="button button-primary">Submit Request</button>
+    <a
+        href="{{ url_for('profile') }}"
+        class="button button-secondary"
+    >
+        Cancel
+    </a>
+</div>
 
-        <a href="{{ url_for('profile') }}" class="button button-secondary"> Cancel </a>
-    </div>
+
 </form>
 
-{% endif %} {% endblock %}
+{% endif %}
+{% endblock %}

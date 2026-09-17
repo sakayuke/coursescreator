@@ -250,6 +250,59 @@ def login_user(client, user_id):
         session["_fresh"] = True
 
 
+def test_student_assignment_filters_and_unread_assignment_notification(
+    app,
+    client,
+):
+    with app.app_context():
+        data = create_submission_data()
+        submitted_assignment = data["assignment"]
+        submitted_assignment_id = submitted_assignment.id
+        topic_id = data["topic"].id
+        student_id = data["student"].id
+
+        not_submitted_assignment = Assignment(
+            title="Unsubmitted Assignment",
+            description="Needs an answer",
+            topic=data["topic"],
+        )
+        db.session.add(not_submitted_assignment)
+        data["course"].students.append(data["student"])
+        db.session.commit()
+
+    login_user(client, student_id)
+
+    submitted_response = client.get(
+        f"/topics/{topic_id}/assignments?status=submitted"
+    )
+    assert submitted_response.status_code == 200
+    assert b"Test Assignment" in submitted_response.data
+    assert b"Unsubmitted Assignment" not in submitted_response.data
+    assert b'option value="graded"' not in submitted_response.data
+    assert submitted_response.data.count(
+        b"assignment-notification"
+    ) == 1
+
+    not_submitted_response = client.get(
+        f"/topics/{topic_id}/assignments?status=not_submitted"
+    )
+    assert not_submitted_response.status_code == 200
+    assert b"Test Assignment" not in not_submitted_response.data
+    assert b"Unsubmitted Assignment" in not_submitted_response.data
+
+    opened_response = client.get(
+        f"/assignments/{submitted_assignment_id}"
+    )
+    assert opened_response.status_code == 200
+
+    all_response = client.get(
+        f"/topics/{topic_id}/assignments?status=all"
+    )
+    assert all_response.data.count(
+        b"assignment-notification"
+    ) == 1
+
+
 def create_submission_data():
     teacher = User(
         first_name="Teacher",

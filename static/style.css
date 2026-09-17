@@ -225,6 +225,10 @@ main {
     gap: 8px;
 }
 
+.assignment-header-actions {
+    flex-wrap: wrap;
+}
+
 .list-search {
     display: flex;
     align-items: center;
@@ -483,6 +487,7 @@ button:hover {
 }
 
 .topic-card {
+    position: relative;
     background: var(--surface);
     border: 1px solid var(--border);
     padding: 22px;
@@ -490,24 +495,34 @@ button:hover {
     box-shadow: var(--shadow);
 }
 
+.assignment-notification {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--danger);
+    box-shadow: 0 0 0 3px var(--surface);
+}
+
 .assignment-filters {
-    width: min(1200px, calc(100% - 40px));
-    margin: -14px auto 24px;
+    flex: 0 0 100%;
     display: flex;
+    justify-content: flex-end;
+    margin: -2px 0 0;
     align-items: center;
-    gap: 10px;
-    color: var(--muted);
-    font-size: 14px;
 }
 
 .assignment-filters select {
-    min-height: 38px;
-    padding: 0 34px 0 10px;
+    min-height: 34px;
+    padding: 0 30px 0 9px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--text);
     font: inherit;
+    font-size: 13px;
 }
 
 .topic-card h3 {
@@ -1472,10 +1487,6 @@ select:focus {
     .list-header-actions {
         width: 100%;
         flex-wrap: wrap;
-    }
-
-    .assignment-filters {
-        width: calc(100% - 24px);
     }
 
     .course-grid,

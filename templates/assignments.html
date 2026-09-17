@@ -11,7 +11,7 @@
     </div>
 
 
-    <div class="list-header-actions">
+    <div class="list-header-actions assignment-header-actions">
         {% if current_user.role in ("admin", "superadmin")
             or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
         <a
@@ -54,31 +54,32 @@
         >
             Search
         </button>
+
+        {% if current_user.role == "student" %}
+        <form method="GET" class="assignment-filters">
+            <input type="hidden" name="q" value="{{ query }}">
+            <select
+                id="assignment-status"
+                name="status"
+                aria-label="Filter assignments"
+                onchange="this.form.submit()"
+            >
+                <option value="all" {% if status == "all" %}selected{% endif %}>
+                    All assignments
+                </option>
+                <option value="not_submitted" {% if status == "not_submitted" %}selected{% endif %}>
+                    Not submitted
+                </option>
+                <option value="submitted" {% if status == "submitted" %}selected{% endif %}>
+                    Submitted
+                </option>
+            </select>
+        </form>
+        {% endif %}
     </div>
 
 
 </div>
-
-{% if current_user.role == "student" %}
-<form method="GET" class="assignment-filters">
-    <input type="hidden" name="q" value="{{ query }}">
-    <label for="assignment-status">Filter:</label>
-    <select id="assignment-status" name="status" onchange="this.form.submit()">
-        <option value="all" {% if status == "all" %}selected{% endif %}>
-            All assignments
-        </option>
-        <option value="not_submitted" {% if status == "not_submitted" %}selected{% endif %}>
-            Not submitted
-        </option>
-        <option value="submitted" {% if status == "submitted" %}selected{% endif %}>
-            Submitted
-        </option>
-        <option value="graded" {% if status == "graded" %}selected{% endif %}>
-            Graded by teacher
-        </option>
-    </select>
-</form>
-{% endif %}
 
 <h2>Assignments</h2>
 
@@ -88,7 +89,15 @@
 
 
 {% for assignment in assignments %}
-<article class="topic-card">
+<article class="topic-card assignment-card">
+
+    {% if assignment.id in unread_assignment_ids %}
+    <span
+        class="assignment-notification"
+        title="New assignment"
+        aria-label="New assignment notification"
+    ></span>
+    {% endif %}
 
     <h3>
         <a

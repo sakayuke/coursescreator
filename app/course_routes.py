@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, abort, flash
 from flask_login import current_user, login_required
 
 from .extensions import db
-from .models import User, Course, Topic, Material
+from .models import User, Course, Topic, Material, Submission
 from .decorators import role_required, is_owner
 
 
@@ -11,6 +11,8 @@ def register_course_routes(app):
     @app.route("/courses")
     @login_required
     def courses():
+        unread_course_ids = set()
+
         if current_user.role in ("admin", "superadmin"):
             courses = Course.query.all()
         elif current_user.role == "teacher":
@@ -22,9 +24,30 @@ def register_course_routes(app):
         else:
             abort(403)
 
+        if current_user.role == "student":
+            unread_submissions = Submission.query.filter(
+                Submission.student_id == current_user.id,
+                Submission.grade.isnot(None),
+                Submission.grade_seen_at.is_(None)
+            ).all()
+            unread_course_ids = {
+                submission.assignment.topic.course_id
+                for submission in unread_submissions
+            }
+
+        query = request.args.get("q", "").strip()
+
+        if query:
+            courses = [
+                course for course in courses
+                if query.casefold() in course.name.casefold()
+            ]
+
         return render_template(
             "courses.html",
-            courses=courses
+            courses=courses,
+            query=query,
+            unread_course_ids=unread_course_ids
         )
 
 
@@ -231,14 +254,24 @@ def register_course_routes(app):
         else:
             abort(403)
 
-        topics = Topic.query.filter_by(
+        query = request.args.get("q", "").strip()
+
+        topics_query = Topic.query.filter_by(
             course_id=course_id
-        ).all()
+        )
+
+        if query:
+            topics_query = topics_query.filter(
+                Topic.name.ilike(f"%{query}%")
+            )
+
+        topics = topics_query.all()
 
         return render_template(
             "topics.html",
             course=course,
-            topics=topics
+            topics=topics,
+            query=query
         )
 
 
@@ -430,10 +463,25 @@ def register_course_routes(app):
         else:
             abort(403)
 
+        query = request.args.get("q", "").strip()
+
+        materials_query = Material.query.filter_by(
+            topic_id=topic.id
+        )
+
+        if query:
+            materials_query = materials_query.filter(
+                Material.name.ilike(f"%{query}%")
+            )
+
+        materials = materials_query.all()
+
         return render_template(
             "materials.html",
             course=course,
-            topic=topic
+            topic=topic,
+            materials=materials,
+            query=query
         )
 
 

@@ -253,6 +253,28 @@ class Assignment(db.Model):
     )
 
 
+class AssignmentView(db.Model):
+    __tablename__ = "assignment_views"
+
+    assignment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("assignments.id"),
+        primary_key=True
+    )
+
+    student_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        primary_key=True
+    )
+
+    viewed_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        server_default=db.func.getdate()
+    )
+
+
 class Submission(db.Model):
     __tablename__ = "submissions"
 
@@ -285,6 +307,11 @@ class Submission(db.Model):
 
     feedback = db.Column(
         db.Text,
+        nullable=True
+    )
+
+    grade_seen_at = db.Column(
+        db.DateTime,
         nullable=True
     )
 

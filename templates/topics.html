@@ -9,17 +9,52 @@
         <p>{{ course.description }}</p>
     </div>
 
-    {% if current_user.role in ("admin", "superadmin")
-        or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+    <div class="list-header-actions">
+        {% if current_user.role in ("admin", "superadmin")
+            or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
 
-    <a
-        href="{{ url_for('create_topic', course_id=course.id) }}"
-        class="button button-primary"
-    >
-        + Create Topic
-    </a>
+        <a
+            href="{{ url_for('create_topic', course_id=course.id) }}"
+            class="button button-primary"
+        >
+            + Create Topic
+        </a>
 
-    {% endif %}
+        {% endif %}
+
+        <form
+            id="topics-search-form"
+            method="GET"
+            class="list-search{% if query %} is-open{% endif %}"
+        >
+            <label class="sr-only" for="topics-search-input">
+                Search topics by name
+            </label>
+            <input
+                id="topics-search-input"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by name"
+            >
+            <button type="submit" class="list-search-submit" aria-label="Search topics" title="Search">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                </svg>
+            </button>
+        </form>
+
+        <button
+            type="button"
+            class="list-search-toggle"
+            data-search-toggle
+            aria-label="Open topic search"
+            aria-controls="topics-search-form"
+            aria-expanded="{{ 'true' if query else 'false' }}"
+        >
+            Search
+        </button>
+    </div>
 </div>
 
 <h2>Course Topics</h2>
@@ -101,6 +136,13 @@
 
     {% endfor %}
 
+</div>
+
+{% elif query %}
+
+<div class="empty-state">
+    <h2>No matching topics</h2>
+    <p>No topic name contains “{{ query }}”.</p>
 </div>
 
 {% else %}

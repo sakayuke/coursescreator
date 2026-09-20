@@ -1,11 +1,85 @@
-from flask import render_template, request, redirect, url_for, abort, flash
+from flask import (
+    render_template,
+    request,
+    redirect,
+    url_for,
+    abort,
+    flash,
+    send_from_directory,
+)
 from flask_login import current_user, login_required
 
 from .extensions import db
 from .models import User, Course, Topic, Material
 from .decorators import role_required, is_owner
 
+import os
+from uuid import uuid4
 
+from werkzeug.utils import secure_filename
+
+BASE_DIR = os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))
+)
+
+UPLOAD_FOLDER = os.path.join(
+    BASE_DIR,
+    "uploads",
+    "materials"
+)
+
+ALLOWED_EXTENSIONS = {
+    "mp4", "webm", "mov",
+    "mp3", "wav", "ogg", "m4a",
+    "pdf",
+    "doc", "docx",
+    "xls", "xlsx",
+    "ppt", "pptx",
+    "jpg", "jpeg", "png", "gif",
+    "txt", "zip",
+}
+
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
+
+
+def allowed_file(filename):
+
+    if "." not in filename:
+        return False
+
+    extension = filename.rsplit(".", 1)[1].lower()
+
+    return extension in ALLOWED_EXTENSIONS
+
+
+def get_file_type(extension):
+
+    if extension in {"mp4", "webm", "mov"}:
+        return "video"
+
+    if extension in {"mp3", "wav", "ogg", "m4a"}:
+        return "audio"
+
+    if extension == "pdf":
+        return "pdf"
+
+    if extension in {"doc", "docx"}:
+        return "docx"
+
+    if extension in {"xls", "xlsx"}:
+        return "xlsx"
+
+    if extension in {"ppt", "pptx"}:
+        return "pptx"
+
+    if extension in {"jpg", "jpeg", "png", "gif", "txt", "zip"}:
+        return "other"
+
+    return None
+    
 def register_course_routes(app):
 
     @app.route("/courses")
@@ -438,10 +512,12 @@ def register_course_routes(app):
 
 
     @app.route(
-        "/courses/<int:course_id>/topics/<int:topic_id>/materials/create",
-        methods=["GET", "POST"]
+    "/courses/<int:course_id>/topics/<int:topic_id>/materials/create",
+    methods=["GET", "POST"]
     )
+    @login_required
     def create_material(course_id, topic_id):
+
         topic = db.session.get(
             Topic,
             topic_id
@@ -458,13 +534,14 @@ def register_course_routes(app):
             course_id
         )
 
-        if current_user.role in (
-            "admin",
-            "superadmin"
-        ):
+        if course is None:
+            abort(404)
+
+        if current_user.role in ("admin", "superadmin"):
             pass
 
         elif current_user.role == "teacher":
+
             if course.teacher_id != current_user.id:
                 abort(403)
 
@@ -472,16 +549,18 @@ def register_course_routes(app):
             abort(403)
 
         if request.method == "POST":
-            name = request.form["name"].strip()
-            file_path = request.form["file_path"].strip()
-            file_type = request.form.get(
-                "file_type",
+
+            name = request.form.get(
+                "name",
                 ""
             ).strip()
 
-            if not name or not file_path:
+            file = request.files.get("file")
+
+            if not name:
+
                 flash(
-                    "Name and file path are required.",
+                    "Material name is required.",
                     "error"
                 )
 
@@ -491,11 +570,61 @@ def register_course_routes(app):
                     topic=topic
                 )
 
+            if file is None or file.filename == "":
+
+                flash(
+                    "Please select a file.",
+                    "error"
+                )
+
+                return render_template(
+                    "create_material.html",
+                    course=course,
+                    topic=topic
+                )
+
+            if not allowed_file(file.filename):
+
+                flash(
+                    "This file type is not allowed.",
+                    "error"
+                )
+
+                return render_template(
+                    "create_material.html",
+                    course=course,
+                    topic=topic
+                )
+
+            safe_filename = secure_filename(
+                file.filename
+            )
+
+            extension = safe_filename.rsplit(
+                ".",
+                1
+            )[1].lower()
+
+            stored_filename = (
+                f"{uuid4().hex}.{extension}"
+            )
+
+            file.save(
+                os.path.join(
+                    UPLOAD_FOLDER,
+                    stored_filename
+                )
+            )
+
+            file_type = get_file_type(
+                extension
+            )
+
             material = Material(
                 topic_id=topic.id,
                 name=name,
-                file_path=file_path,
-                file_type=file_type or None
+                file_path=stored_filename,
+                file_type=file_type
             )
 
             db.session.add(material)
@@ -519,17 +648,124 @@ def register_course_routes(app):
             course=course,
             topic=topic
         )
+    
+
+    @app.route(
+    "/courses/<int:course_id>/topics/<int:topic_id>/materials/<int:material_id>/open"
+    )
+    @login_required
+    def open_material(course_id, topic_id, material_id):
+
+        course = db.session.get(
+            Course,
+            course_id
+        )
+
+        topic = db.session.get(
+            Topic,
+            topic_id
+        )
+
+        material = db.session.get(
+            Material,
+            material_id
+        )
+
+        if course is None or topic is None or material is None:
+            abort(404)
+
+        if topic.course_id != course.id:
+            abort(404)
+
+        if material.topic_id != topic.id:
+            abort(404)
+
+        if current_user.role in ("admin", "superadmin"):
+            pass
+
+        elif current_user.role == "teacher":
+
+            if course.teacher_id != current_user.id:
+                abort(403)
+
+        elif current_user.role == "student":
+
+            if current_user not in course.students:
+                abort(403)
+
+        else:
+            abort(403)
+
+        return send_from_directory(
+            UPLOAD_FOLDER,
+            material.file_path
+        )
+    
+
+    @app.route(
+    "/courses/<int:course_id>/topics/<int:topic_id>/materials/<int:material_id>/download"
+    )
+    @login_required
+    def download_material(course_id, topic_id, material_id):
+
+        course = db.session.get(
+            Course,
+            course_id
+        )
+
+        topic = db.session.get(
+            Topic,
+            topic_id
+        )
+
+        material = db.session.get(
+            Material,
+            material_id
+        )
+
+        if course is None or topic is None or material is None:
+            abort(404)
+
+        if topic.course_id != course.id:
+            abort(404)
+
+        if material.topic_id != topic.id:
+            abort(404)
+
+        if current_user.role in ("admin", "superadmin"):
+            pass
+
+        elif current_user.role == "teacher":
+
+            if course.teacher_id != current_user.id:
+                abort(403)
+
+        elif current_user.role == "student":
+
+            if current_user not in course.students:
+                abort(403)
+
+        else:
+            abort(403)
+
+        return send_from_directory(
+            UPLOAD_FOLDER,
+            material.file_path,
+            as_attachment=True
+        )
 
 
     @app.route(
         "/courses/<int:course_id>/topics/<int:topic_id>/materials/<int:material_id>/delete",
         methods=["POST"]
     )
+    @login_required
     def delete_material(
         course_id,
         topic_id,
         material_id
     ):
+
         material = db.session.get(
             Material,
             material_id
@@ -557,6 +793,9 @@ def register_course_routes(app):
             course_id
         )
 
+        if course is None:
+            abort(404)
+
         if current_user.role in (
             "admin",
             "superadmin"
@@ -564,11 +803,20 @@ def register_course_routes(app):
             pass
 
         elif current_user.role == "teacher":
+
             if course.teacher_id != current_user.id:
                 abort(403)
 
         else:
             abort(403)
+
+        file_path = os.path.join(
+            UPLOAD_FOLDER,
+            material.file_path
+        )
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
         db.session.delete(material)
         db.session.commit()
@@ -585,7 +833,6 @@ def register_course_routes(app):
                 topic_id=topic.id
             )
         )
-
 
     @app.route(
         "/courses/<int:course_id>/students"

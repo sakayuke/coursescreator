@@ -17,30 +17,71 @@
         </p>
     </div>
 
-    {% if current_user.role in ("admin", "superadmin")
-        or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+    <div class="list-header-actions">
+        {% if current_user.role in ("admin", "superadmin")
+            or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
 
-    <a
-        href="{{ url_for(
-            'create_material',
-            course_id=course.id,
-            topic_id=topic.id
-        ) }}"
-        class="button button-primary"
-    >
-        + Add Material
-    </a>
+        <a
+            href="{{ url_for(
+                'create_material',
+                course_id=course.id,
+                topic_id=topic.id
+            ) }}"
+            class="button button-primary"
+        >
+            + Add Material
+        </a>
 
-    {% endif %}
+        {% endif %}
+
+        <form
+            id="materials-search-form"
+            method="GET"
+            class="list-search{% if query %} is-open{% endif %}"
+        >
+            <label class="sr-only" for="materials-search-input">
+                Search materials by name
+            </label>
+            <input
+                id="materials-search-input"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by name"
+            >
+            <button
+                type="submit"
+                class="list-search-submit"
+                aria-label="Search materials"
+                title="Search"
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                </svg>
+            </button>
+        </form>
+
+        <button
+            type="button"
+            class="list-search-toggle"
+            data-search-toggle
+            aria-label="Open material search"
+            aria-controls="materials-search-form"
+            aria-expanded="{{ 'true' if query else 'false' }}"
+            title="Search materials"
+        >
+            Search
+        </button>
+    </div>
 </div>
 
 <h2>Materials</h2>
 
-{% if topic.materials %}
+{% if materials %}
 
 <div class="topic-grid">
 
-    {% for material in topic.materials %}
+    {% for material in materials %}
 
     <article class="topic-card">
 
@@ -109,6 +150,13 @@
 
     {% endfor %}
 
+</div>
+
+{% elif query %}
+
+<div class="empty-state">
+    <h2>No matching materials</h2>
+    <p>No material name contains “{{ query }}”.</p>
 </div>
 
 {% else %}

@@ -1,9 +1,18 @@
 
 from flask import render_template, request, redirect, url_for, abort, flash
 from flask_login import current_user
+from sqlalchemy.exc import ProgrammingError
 from .extensions import db
-from .models import Assignment, Topic, Submission
+from .models import Assignment, AssignmentView, Topic, Submission
 from .decorators import role_required
+
+
+def assignment_views_table_is_missing(error):
+    message = str(error).casefold()
+    return (
+        "assignment_views" in message
+        and "invalid object name" in message
+    )
 
 
 def register_assignment_routes(app):
@@ -27,15 +36,85 @@ def register_assignment_routes(app):
             if current_user not in course.students:
                 abort(403)
 
-        assignments = Assignment.query.filter_by(
+        query = request.args.get("q", "").strip()
+
+        assignments_query = Assignment.query.filter_by(
             topic_id=topic.id
-        ).all()
+        )
+
+        if query:
+            assignments_query = assignments_query.filter(
+                Assignment.title.ilike(f"%{query}%")
+            )
+
+        assignments = assignments_query.all()
+
+        status = request.args.get("status", "all")
+        unread_assignment_ids = set()
+
+        if current_user.role == "student":
+            valid_statuses = {
+                "all",
+                "not_submitted",
+                "submitted",
+            }
+
+            if status not in valid_statuses:
+                status = "all"
+
+            if status != "all":
+                def matches_status(assignment):
+                    submission = next(
+                        (
+                            item for item in assignment.submissions
+                            if item.student_id == current_user.id
+                        ),
+                        None
+                    )
+
+                    if status == "not_submitted":
+                        return submission is None
+
+                    return submission is not None
+
+                assignments = [
+                    assignment for assignment in assignments
+                    if matches_status(assignment)
+                ]
+
+            try:
+                viewed_assignment_ids = {
+                    assignment_view.assignment_id
+                    for assignment_view in AssignmentView.query.filter_by(
+                        student_id=current_user.id
+                    ).all()
+                }
+            except ProgrammingError as error:
+                if not assignment_views_table_is_missing(error):
+                    raise
+
+                # Keep assignment pages available until the migration is run.
+                db.session.rollback()
+                viewed_assignment_ids = {
+                    assignment.id for assignment in assignments
+                }
+
+            unread_assignment_ids = {
+                assignment.id
+                for assignment in assignments
+                if assignment.id not in viewed_assignment_ids
+            }
+        else:
+            status = "all"
 
         return render_template(
             "assignments.html",
             topic=topic,
             course=course,
-            assignments=assignments
+            assignments=assignments,
+            query=query,
+            status=status,
+            unread_assignment_ids=unread_assignment_ids
         )
 
 
@@ -66,6 +145,37 @@ def register_assignment_routes(app):
                 assignment_id=assignment.id,
                 student_id=current_user.id
             ).first()
+
+            should_commit = False
+
+            try:
+                assignment_view = AssignmentView.query.filter_by(
+                    assignment_id=assignment.id,
+                    student_id=current_user.id
+                ).first()
+            except ProgrammingError as error:
+                if not assignment_views_table_is_missing(error):
+                    raise
+
+                db.session.rollback()
+                assignment_view = True
+
+            if assignment_view is None:
+                db.session.add(
+                    AssignmentView(
+                        assignment_id=assignment.id,
+                        student_id=current_user.id
+                    )
+                )
+                should_commit = True
+
+            if submission is not None and submission.grade is not None:
+                if submission.grade_seen_at is None:
+                    submission.grade_seen_at = db.func.getdate()
+                    should_commit = True
+
+            if should_commit:
+                db.session.commit()
 
         return render_template(
             "assignment.html",
@@ -368,4 +478,3 @@ def register_assignment_routes(app):
                 assignment_id=assignment.id
             )
         )
-

@@ -11,15 +11,72 @@
     </div>
 
 
-{% if current_user.role in ("admin", "superadmin")
-    or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
-<a
-    href="{{ url_for('create_assignment', topic_id=topic.id) }}"
-    class="button button-primary"
->
-    + Assignment
-</a>
-{% endif %}
+    <div class="list-header-actions assignment-header-actions">
+        {% if current_user.role in ("admin", "superadmin")
+            or (current_user.role == "teacher" and course.teacher_id == current_user.id) %}
+        <a
+            href="{{ url_for('create_assignment', topic_id=topic.id) }}"
+            class="button button-primary"
+        >
+            + Assignment
+        </a>
+        {% endif %}
+
+        <form
+            id="assignments-search-form"
+            method="GET"
+            class="list-search{% if query %} is-open{% endif %}"
+        >
+            <label class="sr-only" for="assignments-search-input">
+                Search assignments by title
+            </label>
+            <input
+                id="assignments-search-input"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search by title"
+            >
+            <button type="submit" class="list-search-submit" aria-label="Search assignments" title="Search">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+                </svg>
+            </button>
+        </form>
+
+        <button
+            type="button"
+            class="list-search-toggle"
+            data-search-toggle
+            aria-label="Open assignment search"
+            aria-controls="assignments-search-form"
+            aria-expanded="{{ 'true' if query else 'false' }}"
+        >
+            Search
+        </button>
+
+        {% if current_user.role == "student" %}
+        <form method="GET" class="assignment-filters">
+            <input type="hidden" name="q" value="{{ query }}">
+            <select
+                id="assignment-status"
+                name="status"
+                aria-label="Filter assignments"
+                onchange="this.form.submit()"
+            >
+                <option value="all" {% if status == "all" %}selected{% endif %}>
+                    All assignments
+                </option>
+                <option value="not_submitted" {% if status == "not_submitted" %}selected{% endif %}>
+                    Not submitted
+                </option>
+                <option value="submitted" {% if status == "submitted" %}selected{% endif %}>
+                    Submitted
+                </option>
+            </select>
+        </form>
+        {% endif %}
+    </div>
 
 
 </div>
@@ -32,7 +89,15 @@
 
 
 {% for assignment in assignments %}
-<article class="topic-card">
+<article class="topic-card assignment-card">
+
+    {% if assignment.id in unread_assignment_ids %}
+    <span
+        class="assignment-notification"
+        title="New assignment"
+        aria-label="New assignment notification"
+    ></span>
+    {% endif %}
 
     <h3>
         <a
@@ -127,6 +192,13 @@
 {% endfor %}
 
 
+</div>
+
+{% elif query or status != "all" %}
+
+<div class="empty-state">
+    <h2>No matching assignments</h2>
+    <p>No assignments match the selected search and status filters.</p>
 </div>
 
 {% else %}

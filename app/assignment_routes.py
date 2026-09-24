@@ -1,5 +1,13 @@
 
-from flask import render_template, request, redirect, url_for, abort, flash
+from flask import (
+    render_template,
+    request,
+    redirect,
+    url_for,
+    abort,
+    flash,
+    current_app,
+)
 from flask_login import current_user
 from .extensions import db
 from .models import Assignment, Topic, Submission
@@ -51,6 +59,12 @@ def register_assignment_routes(app):
             }
 
             if status not in valid_statuses:
+                current_app.logger.warning(
+                    "Invalid assignment status normalized: user_id=%s topic_id=%s status=%r",
+                    current_user.id,
+                    topic.id,
+                    status,
+                )
                 status = "all"
 
             if status != "all":
@@ -82,8 +96,45 @@ def register_assignment_routes(app):
             (total_assignments + ASSIGNMENTS_PER_PAGE - 1)
             // ASSIGNMENTS_PER_PAGE
         )
-        page = request.args.get("page", 1, type=int) or 1
-        page = min(max(page, 1), total_pages)
+        raw_page = request.args.get("page", "1")
+        try:
+            page = int(raw_page)
+        except (TypeError, ValueError):
+            current_app.logger.warning(
+                "Invalid assignment page: user_id=%s topic_id=%s page=%r",
+                current_user.id,
+                topic.id,
+                raw_page,
+            )
+            abort(400)
+
+        if page < 1:
+            current_app.logger.warning(
+                "Invalid assignment page: user_id=%s topic_id=%s page=%r",
+                current_user.id,
+                topic.id,
+                raw_page,
+            )
+            abort(400)
+
+        if page > total_pages:
+            current_app.logger.info(
+                "Assignment page clamped: user_id=%s topic_id=%s page=%s total_pages=%s",
+                current_user.id,
+                topic.id,
+                page,
+                total_pages,
+            )
+            page = total_pages
+
+        current_app.logger.info(
+            "Assignments listed: user_id=%s topic_id=%s page=%s status=%s query=%r",
+            current_user.id,
+            topic.id,
+            page,
+            status,
+            query,
+        )
         first_assignment_index = (page - 1) * ASSIGNMENTS_PER_PAGE
         assignments = assignments[
             first_assignment_index:first_assignment_index + ASSIGNMENTS_PER_PAGE

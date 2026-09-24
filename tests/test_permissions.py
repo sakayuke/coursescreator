@@ -321,6 +321,54 @@ def test_assignment_pagination(app, client):
     assert b"Page 2 of 2" in second_page.data
 
 
+@pytest.mark.parametrize("page", ["0", "-1", "not-a-number"])
+def test_assignment_pagination_rejects_invalid_page(app, client, page):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+    login_user(client, teacher_id)
+
+    response = client.get(f"/topics/{topic_id}/assignments?page={page}")
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
+
+
+def test_assignment_search_rejects_too_long_query(app, client):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+    login_user(client, teacher_id)
+
+    response = client.get(
+        f"/topics/{topic_id}/assignments",
+        query_string={"q": "a" * 101},
+    )
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
+
+
+def test_global_form_validation_rejects_invalid_email(client):
+    response = client.post(
+        "/register",
+        data={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "not-an-email",
+            "password": "Password1!",
+            "password_confirm": "Password1!",
+        },
+    )
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
+
+
 def create_submission_data():
     teacher = User(
         first_name="Teacher",

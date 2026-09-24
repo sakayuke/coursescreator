@@ -5,6 +5,8 @@ from .extensions import db
 from .models import Assignment, Topic, Submission
 from .decorators import role_required
 
+ASSIGNMENTS_PER_PAGE = 10
+
 
 def register_assignment_routes(app):
 
@@ -31,7 +33,7 @@ def register_assignment_routes(app):
 
         assignments_query = Assignment.query.filter_by(
             topic_id=topic.id
-        )
+        ).order_by(Assignment.id)
 
         if query:
             assignments_query = assignments_query.filter(
@@ -74,13 +76,28 @@ def register_assignment_routes(app):
         else:
             status = "all"
 
+        total_assignments = len(assignments)
+        total_pages = max(
+            1,
+            (total_assignments + ASSIGNMENTS_PER_PAGE - 1)
+            // ASSIGNMENTS_PER_PAGE
+        )
+        page = request.args.get("page", 1, type=int) or 1
+        page = min(max(page, 1), total_pages)
+        first_assignment_index = (page - 1) * ASSIGNMENTS_PER_PAGE
+        assignments = assignments[
+            first_assignment_index:first_assignment_index + ASSIGNMENTS_PER_PAGE
+        ]
+
         return render_template(
             "assignments.html",
             topic=topic,
             course=course,
             assignments=assignments,
             query=query,
-            status=status
+            status=status,
+            page=page,
+            total_pages=total_pages
         )
 
 

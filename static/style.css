@@ -501,6 +501,19 @@ button:hover {
     font-size: 13px;
 }
 
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.pagination-status {
+    color: var(--muted);
+    font-size: 14px;
+}
+
 .topic-card h3 {
     margin: 0 0 8px;
     font-size: 20px;

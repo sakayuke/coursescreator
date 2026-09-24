@@ -286,6 +286,41 @@ def test_student_assignment_filters(
     assert b"Test Assignment" not in not_submitted_response.data
     assert b"Unsubmitted Assignment" in not_submitted_response.data
 
+
+def test_assignment_pagination(app, client):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+        db.session.add_all(
+            [
+                Assignment(
+                    title=f"Assignment {number}",
+                    description="Pagination test",
+                    topic=data["topic"],
+                )
+                for number in range(1, 12)
+            ]
+        )
+        db.session.commit()
+
+    login_user(client, teacher_id)
+
+    first_page = client.get(f"/topics/{topic_id}/assignments?page=1")
+    assert first_page.status_code == 200
+    assert b"Assignment 9" in first_page.data
+    assert b"Assignment 10" not in first_page.data
+    assert b"Page 1 of 2" in first_page.data
+
+    second_page = client.get(f"/topics/{topic_id}/assignments?page=2")
+    assert second_page.status_code == 200
+    assert b"Assignment 10" in second_page.data
+    assert b"Assignment 11" in second_page.data
+    assert b"Assignment 9" not in second_page.data
+    assert b"Page 2 of 2" in second_page.data
+
+
 def create_submission_data():
     teacher = User(
         first_name="Teacher",

@@ -91,14 +91,6 @@
 {% for assignment in assignments %}
 <article class="topic-card assignment-card">
 
-    {% if assignment.id in unread_assignment_ids %}
-    <span
-        class="assignment-notification"
-        title="New assignment"
-        aria-label="New assignment notification"
-    ></span>
-    {% endif %}
-
     <h3>
         <a
             href="{{ url_for('view_assignment', assignment_id=assignment.id) }}"

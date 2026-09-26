@@ -885,10 +885,7 @@ def register_course_routes(app):
     @app.route(
         "/courses/<int:course_id>/students"
     )
-    @role_required(
-        "admin",
-        "superadmin"
-    )
+    @login_required
     def course_students(course_id):
         course = db.session.get(
             Course,
@@ -897,6 +894,13 @@ def register_course_routes(app):
 
         if course is None:
             abort(404)
+        if current_user.role in ("admin", "superadmin"):
+                pass
+        elif current_user.role == "teacher":
+                if course.teacher_id != current_user.id:
+                    abort(403)
+        else:
+                abort(403)
 
         students = User.query.filter_by(
             role="student"
@@ -913,10 +917,7 @@ def register_course_routes(app):
         "/courses/<int:course_id>/students/add",
         methods=["POST"]
     )
-    @role_required(
-        "admin",
-        "superadmin"
-    )
+    @login_required
     def add_student_to_course(course_id):
         course = db.session.get(
             Course,
@@ -925,6 +926,13 @@ def register_course_routes(app):
 
         if course is None:
             abort(404)
+        if current_user.role in ("admin", "superadmin"):
+            pass    
+        elif current_user.role == "teacher":
+            if course.teacher_id != current_user.id:
+                abort(403)
+        else:
+            abort(403)
 
         student_id = request.form["student_id"]
 
@@ -952,10 +960,7 @@ def register_course_routes(app):
         "/courses/<int:course_id>/students/<int:student_id>/remove",
         methods=["POST"]
     )
-    @role_required(
-        "admin",
-        "superadmin"
-    )
+    @login_required
     def remove_student_from_course(
         course_id,
         student_id
@@ -967,6 +972,13 @@ def register_course_routes(app):
 
         if course is None:
             abort(404)
+        if current_user.role in ("admin", "superadmin"):
+            pass
+        elif current_user.role == "teacher":
+            if course.teacher_id != current_user.id:
+                abort(403)
+        else:
+            abort(403)
 
         student = db.session.get(
             User,

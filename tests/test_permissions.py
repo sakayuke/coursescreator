@@ -250,14 +250,13 @@ def login_user(client, user_id):
         session["_fresh"] = True
 
 
-def test_student_assignment_filters_and_unread_assignment_notification(
+def test_student_assignment_filters(
     app,
     client,
 ):
     with app.app_context():
         data = create_submission_data()
         submitted_assignment = data["assignment"]
-        submitted_assignment_id = submitted_assignment.id
         topic_id = data["topic"].id
         student_id = data["student"].id
 
@@ -279,9 +278,6 @@ def test_student_assignment_filters_and_unread_assignment_notification(
     assert b"Test Assignment" in submitted_response.data
     assert b"Unsubmitted Assignment" not in submitted_response.data
     assert b'option value="graded"' not in submitted_response.data
-    assert submitted_response.data.count(
-        b"assignment-notification"
-    ) == 1
 
     not_submitted_response = client.get(
         f"/topics/{topic_id}/assignments?status=not_submitted"
@@ -290,17 +286,87 @@ def test_student_assignment_filters_and_unread_assignment_notification(
     assert b"Test Assignment" not in not_submitted_response.data
     assert b"Unsubmitted Assignment" in not_submitted_response.data
 
-    opened_response = client.get(
-        f"/assignments/{submitted_assignment_id}"
-    )
-    assert opened_response.status_code == 200
 
-    all_response = client.get(
-        f"/topics/{topic_id}/assignments?status=all"
+def test_assignment_pagination(app, client):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+        db.session.add_all(
+            [
+                Assignment(
+                    title=f"Assignment {number}",
+                    description="Pagination test",
+                    topic=data["topic"],
+                )
+                for number in range(1, 12)
+            ]
+        )
+        db.session.commit()
+
+    login_user(client, teacher_id)
+
+    first_page = client.get(f"/topics/{topic_id}/assignments?page=1")
+    assert first_page.status_code == 200
+    assert b"Assignment 9" in first_page.data
+    assert b"Assignment 10" not in first_page.data
+    assert b"Page 1 of 2" in first_page.data
+
+    second_page = client.get(f"/topics/{topic_id}/assignments?page=2")
+    assert second_page.status_code == 200
+    assert b"Assignment 10" in second_page.data
+    assert b"Assignment 11" in second_page.data
+    assert b"Assignment 9" not in second_page.data
+    assert b"Page 2 of 2" in second_page.data
+
+
+@pytest.mark.parametrize("page", ["0", "-1", "not-a-number"])
+def test_assignment_pagination_rejects_invalid_page(app, client, page):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+    login_user(client, teacher_id)
+
+    response = client.get(f"/topics/{topic_id}/assignments?page={page}")
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
+
+
+def test_assignment_search_rejects_too_long_query(app, client):
+    with app.app_context():
+        data = create_submission_data()
+        topic_id = data["topic"].id
+        teacher_id = data["teacher"].id
+
+    login_user(client, teacher_id)
+
+    response = client.get(
+        f"/topics/{topic_id}/assignments",
+        query_string={"q": "a" * 101},
     )
-    assert all_response.data.count(
-        b"assignment-notification"
-    ) == 1
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
+
+
+def test_global_form_validation_rejects_invalid_email(client):
+    response = client.post(
+        "/register",
+        data={
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "not-an-email",
+            "password": "Password1!",
+            "password_confirm": "Password1!",
+        },
+    )
+
+    assert response.status_code == 400
+    assert b"Invalid request" in response.data
 
 
 def create_submission_data():

@@ -10,7 +10,7 @@ from flask import (
 from flask_login import current_user, login_required
 
 from .extensions import db
-from .models import User, Course, Topic, Material, Submission
+from .models import User, Course, Topic, Material
 from .decorators import role_required, is_owner
 
 import os
@@ -85,8 +85,6 @@ def register_course_routes(app):
     @app.route("/courses")
     @login_required
     def courses():
-        unread_course_ids = set()
-
         if current_user.role in ("admin", "superadmin"):
             courses = Course.query.all()
         elif current_user.role == "teacher":
@@ -97,17 +95,6 @@ def register_course_routes(app):
             courses = current_user.enrolled_courses
         else:
             abort(403)
-
-        if current_user.role == "student":
-            unread_submissions = Submission.query.filter(
-                Submission.student_id == current_user.id,
-                Submission.grade.isnot(None),
-                Submission.grade_seen_at.is_(None)
-            ).all()
-            unread_course_ids = {
-                submission.assignment.topic.course_id
-                for submission in unread_submissions
-            }
 
         query = request.args.get("q", "").strip()
 
@@ -120,8 +107,7 @@ def register_course_routes(app):
         return render_template(
             "courses.html",
             courses=courses,
-            query=query,
-            unread_course_ids=unread_course_ids
+            query=query
         )
 
 

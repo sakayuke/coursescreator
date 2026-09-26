@@ -1,3 +1,4 @@
+
 from flask_login import UserMixin
 
 from .extensions import db
@@ -5,6 +6,7 @@ from .extensions import db
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -44,20 +46,22 @@ course_students = db.Table(
     db.Column(
         "course_id",
         db.Integer,
-        db.ForeignKey("courses.id"),
+        db.ForeignKey("dbo.courses.id"),
         primary_key=True
     ),
     db.Column(
         "student_id",
         db.Integer,
-        db.ForeignKey("users.id"),
+        db.ForeignKey("dbo.users.id"),
         primary_key=True
-    )
+    ),
+    schema="dbo"
 )
 
 
 class Course(db.Model):
     __tablename__ = "courses"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -75,7 +79,7 @@ class Course(db.Model):
 
     teacher_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),
+        db.ForeignKey("dbo.users.id"),
         nullable=False
     )
 
@@ -99,6 +103,7 @@ class Course(db.Model):
 
 class Topic(db.Model):
     __tablename__ = "topics"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -107,7 +112,7 @@ class Topic(db.Model):
 
     course_id = db.Column(
         db.Integer,
-        db.ForeignKey("courses.id"),
+        db.ForeignKey("dbo.courses.id"),
         nullable=False
     )
 
@@ -140,6 +145,7 @@ class Topic(db.Model):
 
 class Material(db.Model):
     __tablename__ = "materials"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -148,7 +154,7 @@ class Material(db.Model):
 
     topic_id = db.Column(
         db.Integer,
-        db.ForeignKey("topics.id"),
+        db.ForeignKey("dbo.topics.id"),
         nullable=False
     )
 
@@ -174,6 +180,7 @@ class Material(db.Model):
 
 class TeacherRequest(db.Model):
     __tablename__ = "teacher_requests"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -182,7 +189,7 @@ class TeacherRequest(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),
+        db.ForeignKey("dbo.users.id"),
         nullable=False
     )
 
@@ -219,6 +226,7 @@ class TeacherRequest(db.Model):
 
 class Assignment(db.Model):
     __tablename__ = "assignments"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -227,7 +235,7 @@ class Assignment(db.Model):
 
     topic_id = db.Column(
         db.Integer,
-        db.ForeignKey("topics.id"),
+        db.ForeignKey("dbo.topics.id"),
         nullable=False
     )
 
@@ -253,8 +261,32 @@ class Assignment(db.Model):
     )
 
 
+class AssignmentView(db.Model):
+    __tablename__ = "assignment_views"
+    __table_args__ = {"schema": "dbo"}
+
+    assignment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.assignments.id"),
+        primary_key=True
+    )
+
+    student_id = db.Column(
+        db.Integer,
+        db.ForeignKey("dbo.users.id"),
+        primary_key=True
+    )
+
+    viewed_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        server_default=db.func.getdate()
+    )
+
+
 class Submission(db.Model):
     __tablename__ = "submissions"
+    __table_args__ = {"schema": "dbo"}
 
     id = db.Column(
         db.Integer,
@@ -263,13 +295,13 @@ class Submission(db.Model):
 
     assignment_id = db.Column(
         db.Integer,
-        db.ForeignKey("assignments.id"),
+        db.ForeignKey("dbo.assignments.id"),
         nullable=False
     )
 
     student_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),
+        db.ForeignKey("dbo.users.id"),
         nullable=False
     )
 
@@ -285,6 +317,11 @@ class Submission(db.Model):
 
     feedback = db.Column(
         db.Text,
+        nullable=True
+    )
+
+    grade_seen_at = db.Column(
+        db.DateTime,
         nullable=True
     )
 
@@ -306,3 +343,4 @@ class Submission(db.Model):
             lazy=True
         )
     )
+

@@ -114,6 +114,29 @@ The application will be available at:
 http://127.0.0.1:5000
 ```
 
+## Validation, errors, and logs
+
+All GET parameters are limited to 100 characters. Form fields are validated
+against the limits of their corresponding model fields (including names,
+titles, email addresses, passwords, and submitted content); email addresses
+also receive format validation. The assignment list additionally validates the
+`page` parameter as a positive integer. Invalid values return the 400 page
+without changing application data. Existing status values and endpoints remain
+unchanged; an unknown assignment status is treated as `all` and is recorded as
+a warning for backwards compatibility.
+
+Every HTTP request, rejected input, denied access, and HTTP error is written to
+the server console. Set `LOG_LEVEL=DEBUG` in `.env` to include debug-level
+messages.
+
+## Tests
+
+Run the automated tests with:
+
+```bash
+./venv/bin/pytest -q
+```
+
 ## Git Workflow
 
 Do not work directly in `main`.

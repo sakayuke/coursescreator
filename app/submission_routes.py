@@ -123,7 +123,6 @@ def register_submission_routes(app):
 
         submission.grade = grade
         submission.feedback = feedback or None
-        submission.grade_seen_at = None
 
         db.session.commit()
 

@@ -37,6 +37,9 @@
                 value="{{ query }}"
                 placeholder="Search by title"
             >
+            {% if current_user.role == "student" %}
+            <input type="hidden" name="status" value="{{ status }}">
+            {% endif %}
             <button type="submit" class="list-search-submit" aria-label="Search assignments" title="Search">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
@@ -90,14 +93,6 @@
 
 {% for assignment in assignments %}
 <article class="topic-card assignment-card">
-
-    {% if assignment.id in unread_assignment_ids %}
-    <span
-        class="assignment-notification"
-        title="New assignment"
-        aria-label="New assignment notification"
-    ></span>
-    {% endif %}
 
     <h3>
         <a
@@ -193,6 +188,32 @@
 
 
 </div>
+
+{% if total_pages > 1 %}
+<nav class="pagination" aria-label="Assignment pages">
+    {% if page > 1 %}
+    <a
+        href="{{ url_for('assignments', topic_id=topic.id, q=query, status=status, page=page - 1) }}"
+        class="button button-secondary"
+    >
+        ← Previous
+    </a>
+    {% endif %}
+
+    <span class="pagination-status">
+        Page {{ page }} of {{ total_pages }}
+    </span>
+
+    {% if page < total_pages %}
+    <a
+        href="{{ url_for('assignments', topic_id=topic.id, q=query, status=status, page=page + 1) }}"
+        class="button button-secondary"
+    >
+        Next →
+    </a>
+    {% endif %}
+</nav>
+{% endif %}
 
 {% elif query or status != "all" %}
 

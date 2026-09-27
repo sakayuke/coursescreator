@@ -77,14 +77,6 @@
 
             <article class="course-card">
 
-                {% if course.id in unread_course_ids %}
-                    <span
-                        class="course-notification"
-                        title="A graded assignment is waiting for you"
-                        aria-label="New grade notification"
-                    ></span>
-                {% endif %}
-
                 <div class="course-image">
                     {{ course.name[0]|upper }}
                 </div>

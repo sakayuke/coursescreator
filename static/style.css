@@ -395,18 +395,6 @@ button:hover {
         box-shadow 0.15s ease;
 }
 
-.course-notification {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: #d93025;
-    box-shadow: 0 0 0 3px var(--surface);
-    z-index: 1;
-}
-
 .course-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
@@ -487,23 +475,11 @@ button:hover {
 }
 
 .topic-card {
-    position: relative;
     background: var(--surface);
     border: 1px solid var(--border);
     padding: 22px;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-}
-
-.assignment-notification {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: var(--danger);
-    box-shadow: 0 0 0 3px var(--surface);
 }
 
 .assignment-filters {
@@ -523,6 +499,19 @@ button:hover {
     color: var(--text);
     font: inherit;
     font-size: 13px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.pagination-status {
+    color: var(--muted);
+    font-size: 14px;
 }
 
 .topic-card h3 {

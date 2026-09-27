@@ -79,6 +79,16 @@ def get_file_type(extension):
         return "other"
 
     return None
+
+def is_admin():
+    return current_user.role in ("admin", "superadmin")
+
+def is_teacher_who_owns_course(course):
+
+    if current_user.role != "teacher": 
+        return False
+
+    return course.teacher_id == current_user.id
     
 def register_course_routes(app):
 
@@ -585,15 +595,7 @@ def register_course_routes(app):
         if course is None:
             abort(404)
 
-        if current_user.role in ("admin", "superadmin"):
-            pass
-
-        elif current_user.role == "teacher":
-
-            if course.teacher_id != current_user.id:
-                abort(403)
-
-        else:
+        if not is_admin() and not is_teacher_who_owns_course(course):
             abort(403)
 
         if request.method == "POST":
@@ -926,12 +928,8 @@ def register_course_routes(app):
 
         if course is None:
             abort(404)
-        if current_user.role in ("admin", "superadmin"):
-            pass    
-        elif current_user.role == "teacher":
-            if course.teacher_id != current_user.id:
-                abort(403)
-        else:
+            
+        if not is_admin() and not is_teacher_who_owns_course(course):
             abort(403)
 
         student_id = request.form["student_id"]
@@ -972,12 +970,8 @@ def register_course_routes(app):
 
         if course is None:
             abort(404)
-        if current_user.role in ("admin", "superadmin"):
-            pass
-        elif current_user.role == "teacher":
-            if course.teacher_id != current_user.id:
-                abort(403)
-        else:
+            
+        if not is_admin() and not is_teacher_who_owns_course(course):
             abort(403)
 
         student = db.session.get(

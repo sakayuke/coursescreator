@@ -32,11 +32,15 @@
 
         <div class="navbar-container">
 
-            <a href="{{ url_for('courses') }}" class="logo">
+            <a href="{{ url_for('home') }}" class="logo">
                 Course Platform
             </a>
 
             <div class="nav-links">
+
+                <a href="{{ url_for('home') }}">
+                    Home
+                </a>
 
                 {% if current_user.is_authenticated %}
 

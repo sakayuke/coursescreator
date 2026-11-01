@@ -1,5 +1,4 @@
 
-from flask import render_template
 from werkzeug.security import generate_password_hash
 
 from app import create_app
@@ -50,16 +49,7 @@ def create_admin():
     )
 
 
-@app.route("/")
-def home():
-
-    return render_template(
-        "home.html"
-    )
-
-
 if __name__ == "__main__":
     app.run(
         debug=True
     )
-

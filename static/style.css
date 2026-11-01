@@ -1446,10 +1446,17 @@ select:focus {
     }
 
     .navbar-container {
-        gap: 15px;
+        min-height: 0;
+        padding: 12px 0;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
     }
 
     .nav-links {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 14px;
     }
 
@@ -1552,11 +1559,11 @@ select:focus {
 @media (max-width: 500px) {
 
     .navbar-container {
-        min-height: 64px;
+        gap: 10px;
     }
 
     .navbar {
-        min-height: 64px;
+        min-height: 0;
     }
 
     .nav-links {

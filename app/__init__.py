@@ -112,6 +112,10 @@ def create_app():
             int(user_id)
         )
 
+    @app.route("/")
+    def home():
+        return render_template("home.html")
+
     from .admin_routes import register_admin_routes
     register_admin_routes(app)
 

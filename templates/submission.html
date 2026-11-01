@@ -19,6 +19,21 @@
             </strong>
         </p>
     </div>
+    {% if current_user.role == "student" %}
+    <a
+        href="{{ url_for('view_assignment', assignment_id=submission.assignment_id) }}"
+        class="button button-secondary"
+    >
+        Back to Assignment
+    </a>
+    {% else %}
+    <a
+        href="{{ url_for('assignment_submissions', assignment_id=submission.assignment_id) }}"
+        class="button button-secondary"
+    >
+        Back to Submissions
+    </a>
+    {% endif %}
 </div>
 
 <section class="submission-card">

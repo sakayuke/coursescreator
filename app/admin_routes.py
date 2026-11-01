@@ -70,9 +70,8 @@ def register_admin_routes(app):
 
         if request.method == "POST":
 
-            experience = request.form["experience"].strip()
-
-            reason = request.form["reason"].strip()
+            experience = request.form.get("experience", "").strip()
+            reason = request.form.get("reason", "").strip()
 
             if not experience or not reason:
 

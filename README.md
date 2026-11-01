@@ -1,5 +1,6 @@
 # Course Platform (LMS) 🚀
 
+[![CI Pipeline](https://github.com/sakayuke/coursescreator/actions/workflows/ci.yml/badge.svg)](https://github.com/sakayuke/coursescreator/actions/workflows/ci.yml)
 [![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 [![Framework](https://img.shields.io/badge/framework-Flask%203.x-black.svg)](https://flask.palletsprojects.com/)
 [![ORM](https://img.shields.io/badge/ORM-SQLAlchemy%202.x-red.svg)](https://www.sqlalchemy.org/)
@@ -101,6 +102,17 @@ flask --app run:app create-admin
 flask --app run:app run
 ```
 Open **[http://127.0.0.1:5000](http://127.0.0.1:5000)** in your browser.
+
+---
+
+## 🐳 Docker Deployment
+
+To launch the full environment instantly with Docker Compose:
+
+```bash
+docker compose up -d --build
+```
+The application will be live at `http://localhost:5000`.
 
 ---
 

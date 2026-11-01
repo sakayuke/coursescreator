@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=generate_strong_secret_key_in_production
+      - SESSION_COOKIE_SECURE=False
+    volumes:
+      - ./uploads:/app/uploads
+      - ./instance:/app/instance
+    restart: unless-stopped

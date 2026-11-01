@@ -8,6 +8,13 @@ __pycache__/
 .pytest_cache/
 
 instance/
+*.db
+app.db
+
+uploads/*
+!uploads/.gitkeep
+
+coursescreator-main/
 
 .vscode/
 .idea/

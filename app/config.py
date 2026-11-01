@@ -8,7 +8,7 @@ DEFAULT_SQLITE_PATH = os.path.join(BASE_DIR, "app.db")
 
 
 class Config:
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+    SECRET_KEY = os.getenv("SECRET_KEY", "")
 
     # Fallback to local SQLite if DATABASE_URL is not set
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH}")
@@ -30,7 +30,7 @@ class Config:
     # Security: Cookie protections against XSS & CSRF
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() in ("true", "1")
+    SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "True").lower() in ("true", "1")
 
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
     MAX_QUERY_VALUE_LENGTH = 100

@@ -3,6 +3,9 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+os.environ.setdefault("SECRET_KEY", "test-only-secret-key-not-for-production")
+os.environ.setdefault("SESSION_COOKIE_SECURE", "True")
+
 import pytest
 from run import app as flask_app
 from app.extensions import db

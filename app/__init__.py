@@ -22,6 +22,12 @@ def request_user_id():
 
 def create_app():
 
+    if len(Config.SECRET_KEY) < 32:
+        raise RuntimeError(
+            "SECRET_KEY must be at least 32 characters. Generate one with "
+            "`python -c \"import secrets; print(secrets.token_hex(32))\"`."
+        )
+
     app = Flask(
         __name__,
         template_folder="../templates",

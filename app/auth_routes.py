@@ -1,6 +1,6 @@
 import re
 
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -42,46 +42,39 @@ def register_auth_routes(app):
 
         if request.method == "POST":
 
-            first_name = request.form[
-                "first_name"
-            ].strip()
-
-            last_name = request.form[
-                "last_name"
-            ].strip()
-
-            email = request.form[
-                "email"
-            ].strip().lower()
-
-            password = request.form[
-                "password"
-            ]
-
-            password_confirm = request.form[
-                "password_confirm"
-            ]
+            first_name = request.form.get("first_name", "").strip()
+            last_name = request.form.get("last_name", "").strip()
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
+            password_confirm = request.form.get("password_confirm", "")
 
             if not first_name or not last_name:
-
+                flash("First and last name are required.", "error")
                 return render_template(
-                    "register.html"
+                    "register.html",
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
                 )
 
             if password != password_confirm:
-
+                flash("Passwords do not match.", "error")
                 return render_template(
-                    "register.html"
+                    "register.html",
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
                 )
 
-            password_error = validate_password(
-                password
-            )
+            password_error = validate_password(password)
 
             if password_error:
-
+                flash(password_error, "error")
                 return render_template(
-                    "register.html"
+                    "register.html",
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email
                 )
 
             existing_user = User.query.filter_by(
@@ -89,9 +82,11 @@ def register_auth_routes(app):
             ).first()
 
             if existing_user:
-
+                flash("An account with this email address already exists.", "error")
                 return render_template(
-                    "register.html"
+                    "register.html",
+                    first_name=first_name,
+                    last_name=last_name
                 )
 
             user = User(
@@ -105,6 +100,7 @@ def register_auth_routes(app):
             db.session.add(user)
             db.session.commit()
 
+            flash("Account created successfully. Please log in.", "success")
             return redirect(
                 url_for("login")
             )
@@ -122,13 +118,8 @@ def register_auth_routes(app):
 
         if request.method == "POST":
 
-            email = request.form[
-                "email"
-            ].strip().lower()
-
-            password = request.form[
-                "password"
-            ]
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
 
             user = User.query.filter_by(
                 email=email
@@ -153,14 +144,19 @@ def register_auth_routes(app):
                     url_for("courses")
                 )
 
-            return "Invalid email or password"
+            flash("Invalid email or password", "error")
+            return render_template(
+                "login.html",
+                email=email,
+                error="Invalid email or password"
+            ), 200
 
         return render_template(
             "login.html"
         )
 
 
-    @app.route("/logout")
+    @app.route("/logout", methods=["GET", "POST"])
     def logout():
 
         logout_user()

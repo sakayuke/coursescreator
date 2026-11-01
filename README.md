@@ -1,172 +1,113 @@
-# Course Platform
+# Course Platform (LMS) 🚀
 
-Web platform for managing educational courses.
+[![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue.svg)](https://www.python.org/)
+[![Framework](https://img.shields.io/badge/framework-Flask%203.x-black.svg)](https://flask.palletsprojects.com/)
+[![ORM](https://img.shields.io/badge/ORM-SQLAlchemy%202.x-red.svg)](https://www.sqlalchemy.org/)
+[![Database](https://img.shields.io/badge/database-MSSQL%20%2F%20SQLite-green.svg)](https://www.microsoft.com/sql-server)
+[![Security Audited](https://img.shields.io/badge/security-OWASP%20Hardened-purple.svg)](#security--defense-in-depth)
+[![License](https://img.shields.io/badge/license-MIT-informational.svg)](LICENSE)
 
-## Authors
+A robust, enterprise-grade **Learning Management System (LMS)** and course management web platform engineered with **Python, Flask, and SQLAlchemy**. Features multi-tenant Role-Based Access Control (RBAC), topic hierarchies, lecture material distribution, automated submission lifecycles, and teacher evaluation workflows.
 
-* sakayuke
-* Kana-Chan
-* kelet1234
-* lliibed
-* patrykzajmala
-* zacklol93
+---
 
-## Roles
+## 🌟 Key Highlights & Architecture
 
-* Admin
-* Teacher
-* Student
+- **Hierarchical Course Structure**: Courses contain structured Topics, which hold downloadable lecture materials and student assignments.
+- **Role-Based Access Control (RBAC)**: Fine-grained declarative decorators (`@role_required`) governing Students, Teachers, Admins, and Superadmins.
+- **Full Assignment Lifecycle**: Students submit solutions; instructors review, grade (0–100), and return structured feedback.
+- **Teacher Request Workflow**: Students can formally apply for instructor privileges with administrative approval mechanisms.
+- **Dual Engine Database Support**: Ready for production **Microsoft SQL Server (T-SQL)** with zero-configuration fallback to **SQLite** for rapid local development.
+- **Adaptive UI**: High-contrast modern interface with native Dark/Light mode theme switching and responsive mobile ergonomics.
 
-## Tech Stack
+---
 
-* Python
-* Flask
-* Flask-SQLAlchemy
-* Flask-Migrate
-* Flask-Login
-* Microsoft SQL Server
-* pyodbc
-* FreeTDS
-* Jinja2
-* pytest
+## 🛡️ Security & Defense-in-Depth
 
-## Project Structure
+The codebase has undergone defensive auditing and security fortification against OWASP Top-10 vulnerabilities:
 
-```text
-coursescreator/
-├── run.py
-├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── decorators.py
-│   ├── extensions.py
-│   └── models.py
-├── migrations/
-├── templates/
-├── static/
-├── tests/
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
+| Category | Defense Mechanism | Implementation |
+| :--- | :--- | :--- |
+| **Account Takeover Prevention** | Mandatory Current Password Re-auth | Email modifications and credential updates strictly mandate active password re-verification via secure password hashes. |
+| **Session & Cookie Security** | Strict Cookie Attributes | `HttpOnly`, `SameSite=Lax`, and conditional HTTPS `Secure` flags configured to prevent cookie theft via XSS. |
+| **Denial of Service (DoS)** | Strict Payload & Upload Limits | `MAX_CONTENT_LENGTH` enforced at 50 MB to prevent disk exhaustion and memory exhaustion attacks. |
+| **IDOR Protection** | Object-Level Ownership Checks | Strict verification ensuring instructors can only modify and grade submissions belonging to their assigned courses. |
+| **Sanitized Storage** | UUIDv4 & Extension Whitelisting | File uploads are assigned randomized UUIDs and validated against a strict MIME/extension whitelist, preventing remote code execution. |
 
-## Setup
+---
+
+## 👥 User Roles & Permissions Matrix
+
+| Feature / Capability | Student | Teacher | Admin / Superadmin |
+| :--- | :---: | :---: | :---: |
+| Browse & Search Courses | ✅ | ✅ | ✅ |
+| Enroll in Courses | ✅ | — | — |
+| View Topics & Download Materials | ✅ (Enrolled) | ✅ (Owner) | ✅ (All) |
+| Submit Assignment Solutions | ✅ | — | — |
+| Create Courses & Topics | — | ✅ | ✅ |
+| Upload & Delete Materials | — | ✅ (Owner) | ✅ |
+| Grade Submissions & Give Feedback | — | ✅ (Owner) | ✅ |
+| Manage User Roles & System Logs | — | — | ✅ |
+| Review Teacher Applications | — | — | ✅ |
+
+---
+
+## 💻 Quick Start & Setup
 
 ### 1. Clone the repository
-
 ```bash
-git clone <repository-url>
+git clone https://github.com/sakayuke/coursescreator.git
 cd coursescreator
 ```
 
-### 2. Create a virtual environment
-
+### 2. Set up virtual environment
 ```bash
 python -m venv venv
-```
 
-For Fish shell:
+# On Windows:
+venv\Scripts\activate
 
-```fish
-source venv/bin/activate.fish
+# On Linux/macOS:
+source venv/bin/activate
 ```
 
 ### 3. Install dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment
-
-Copy the example environment file:
-
+### 4. Configuration (.env)
 ```bash
 cp .env.example .env
 ```
+*Note: If no `DATABASE_URL` is specified in `.env`, the platform automatically initializes a local SQLite database (`app.db`) with zero configuration!*
 
-Edit `.env` and configure your local SQL Server connection and secret key.
+### 5. Initialize Database & Seed Demo Accounts
+```bash
+# Optional: Seed pre-configured test users
+flask --app run:app create-test-users
 
-### 5. Create the database
-
-Create a Microsoft SQL Server database named:
-
-```text
-course_platform
+# Optional: Create master superadmin account
+flask --app run:app create-admin
 ```
 
-### 6. Apply migrations
-
-```fish
-flask --app run:app db upgrade
-```
-
-### 7. Run the application
-
-```fish
+### 6. Run Development Server
+```bash
 flask --app run:app run
 ```
+Open **[http://127.0.0.1:5000](http://127.0.0.1:5000)** in your browser.
 
-The application will be available at:
+---
 
-```text
-http://127.0.0.1:5000
-```
+## 🧪 Testing Suite
 
-## Validation, errors, and logs
-
-All GET parameters are limited to 100 characters. Form fields are validated
-against the limits of their corresponding model fields (including names,
-titles, email addresses, passwords, and submitted content); email addresses
-also receive format validation. The assignment list additionally validates the
-`page` parameter as a positive integer. Invalid values return the 400 page
-without changing application data. Existing status values and endpoints remain
-unchanged; an unknown assignment status is treated as `all` and is recorded as
-a warning for backwards compatibility.
-
-Every HTTP request, rejected input, denied access, and HTTP error is written to
-the server console. Set `LOG_LEVEL=DEBUG` in `.env` to include debug-level
-messages.
-
-## Tests
-
-Run the automated tests with:
+Automated integration and permission tests are managed via `pytest`:
 
 ```bash
-./venv/bin/pytest -q
+pytest -v
 ```
 
-## Git Workflow
+---
 
-Do not work directly in `main`.
-
-Create a feature branch:
-
-```bash
-git checkout -b feature/your-feature
-```
-
-Make your changes and commit them:
-
-```bash
-git add .
-git commit -m "Description of changes"
-```
-
-Push your branch:
-
-```bash
-git push -u origin feature/your-feature
-```
-
-Then create a Pull Request into `main`.
-
-## Important
-
-* Never commit `.env`.
-* Never commit passwords or secrets.
-* Do not force-push to `main`.
-* Do not delete another developer's migrations.
-* Pull the latest `main` before starting new work.
-* Keep `main` stable and use feature branches for development.
+## 📄 License
+This project is licensed under the MIT License.

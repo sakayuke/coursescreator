@@ -22,7 +22,7 @@ def create_test_users():
             first_name=first_name,
             last_name=last_name,
             email=email,
-            password_hash=generate_password_hash("123456"),
+            password_hash=generate_password_hash("TestPass123!"),
             role=role
         )
 

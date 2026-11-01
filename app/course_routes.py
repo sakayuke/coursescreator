@@ -131,8 +131,8 @@ def register_course_routes(app):
             abort(403)
 
         if request.method == "POST":
-            name = request.form["name"].strip()
-            description = request.form["description"].strip()
+            name = request.form.get("name", "").strip()
+            description = request.form.get("description", "").strip()
 
             if not name:
                 flash(
@@ -150,7 +150,7 @@ def register_course_routes(app):
             if current_user.role == "teacher":
                 teacher_id = current_user.id
             else:
-                teacher_id = request.form["teacher_id"]
+                teacher_id = request.form.get("teacher_id")
 
             teacher = db.session.get(
                 User,
@@ -225,14 +225,14 @@ def register_course_routes(app):
             abort(403)
 
         if request.method == "POST":
-            course.name = request.form["name"]
-            course.description = request.form["description"]
+            course.name = request.form.get("name", "").strip()
+            course.description = request.form.get("description", "").strip()
 
             if current_user.role in (
                 "admin",
                 "superadmin"
             ):
-                teacher_id = request.form["teacher_id"]
+                teacher_id = request.form.get("teacher_id")
 
                 teacher = db.session.get(
                     User,
@@ -372,8 +372,8 @@ def register_course_routes(app):
             abort(403)
 
         if request.method == "POST":
-            name = request.form["name"]
-            description = request.form["description"]
+            name = request.form.get("name", "").strip()
+            description = request.form.get("description", "").strip()
 
             topic = Topic(
                 course_id=course.id,
@@ -432,8 +432,8 @@ def register_course_routes(app):
             abort(403)
 
         if request.method == "POST":
-            topic.name = request.form["name"]
-            topic.description = request.form["description"]
+            topic.name = request.form.get("name", "").strip()
+            topic.description = request.form.get("description", "").strip()
 
             db.session.commit()
 
@@ -918,7 +918,9 @@ def register_course_routes(app):
         if not is_admin() and not is_teacher_who_owns_course(course):
             abort(403)
 
-        student_id = request.form["student_id"]
+        student_id = request.form.get("student_id")
+        if not student_id:
+            abort(400)
 
         student = db.session.get(
             User,

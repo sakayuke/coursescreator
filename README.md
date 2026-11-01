@@ -80,6 +80,11 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 ```
+Generate a strong `SECRET_KEY` and set it in `.env`:
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+Keep `SESSION_COOKIE_SECURE=True` for HTTPS deployments. For local HTTP development only, set it to `False`.
 *Note: If no `DATABASE_URL` is specified in `.env`, the platform automatically initializes a local SQLite database (`app.db`) with zero configuration!*
 
 ### 5. Initialize Database & Seed Demo Accounts
